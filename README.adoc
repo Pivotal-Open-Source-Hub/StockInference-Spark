@@ -111,4 +111,9 @@ scala>  rdd.foreach(println)
 
 val dataFrame = sqlContext.gemfireOQL("SELECT s.Change, s.DaysHigh FROM /Stocks s”)
 
+
+
+stream create transformIntoLabeledPoint --definition "tap:stream:process_sink.transform >  splitter --expression='('+#jsonPath(payload,'$.Change')+',['+#jsonPath(payload,'$.Change')+'])' | log" --deploy
+
+
 ----
