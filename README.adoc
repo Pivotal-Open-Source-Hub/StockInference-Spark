@@ -7,7 +7,14 @@ Tested with
 . Geode 
 . Spring XD 2.0 Snapshot
 
-Draft:
+### Spark Config
+
+---
+   $ echo spark.gemfire.locators=localhost[10334] >> $SPARK_HOME/conf/spark-defaults.conf
+
+---
+
+### Draft:
 
 ----
 1)
