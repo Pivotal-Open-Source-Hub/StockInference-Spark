@@ -1,0 +1,65 @@
+# StockInference-Spark project
+
+Stock inference engine using Spring XD, Apache Geode / GemFire and Spark ML Lib.
+
+Draft:
+
+----
+1)
+
+Frederico-Melos-MacBook-Pro:tmp fmelo$ $GEODE_HOME/bin/gfsh
+
+2)
+
+gfsh>start locator --name=locator1 --port=55221
+
+3)
+
+gfsh>start server --name=server1 --locators=localhost[55221] --server-port=0
+
+gfsh>start server --name=server2 --locators=localhost[55221] --server-port=0
+
+4)
+
+gfsh>deploy --jar=/Users/fmelo/WifiAnalyticsIoT/server/geode-spark-connector/gemfire-functions_2.10-0.5.0.jar
+
+5)
+
+gfsh> create region --name=str_str_region --type=PARTITION --key-constraint=java.lang.String --value-constraint=java.lang.String
+
+gfsh> create region --name=int_str_region --type=PARTITION --key-constraint=java.lang.Integer --value-constraint=java.lang.String
+
+6)
+
+   spark-shell --master local[*] --jars /Users/fmelo/WifiAnalyticsIoT/server/geode-spark-connector/gemfire-spark-connector_2.10-0.5.0.jar,/Users/fmelo/geode/lib/gemfire-core-dependencies.jar
+
+7)
+
+scala> import io.pivotal.gemfire.spark.connector._
+
+scala> sc.getConf.get("spark.gemfire.locators")
+res0: String = localhost[55221]
+
+scala> val data = Array(("1", "one"), ("2", "two"), ("3", "three”))
+
+scala> val distData = sc.parallelize(data)
+
+scala>  distData.saveToGemfire("str_str_region")
+
+—
+
+8)
+
+scala> val rdd = sc.gemfireRegion[String, String]("str_str_region")
+
+scala>  rdd.foreach(println)
+
+(1,one)
+(2,two)
+(3,three)
+
+9)
+
+val dataFrame = sqlContext.gemfireOQL("SELECT s.Change, s.DaysHigh FROM /Stocks s”)
+
+----
