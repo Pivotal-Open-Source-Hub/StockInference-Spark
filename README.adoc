@@ -2,6 +2,11 @@
 
 Stock inference engine using Spring XD, Apache Geode / GemFire and Spark ML Lib.
 
+Tested with
+. Spark 1.3.1
+. Geode 
+. Spring XD 2.0 Snapshot
+
 Draft:
 
 ----
@@ -21,7 +26,7 @@ gfsh>start server --name=server2 --locators=localhost[55221] --server-port=0
 
 4)
 
-gfsh>deploy --jar=/Users/fmelo/WifiAnalyticsIoT/server/geode-spark-connector/gemfire-functions_2.10-0.5.0.jar
+gfsh>deploy --jar=lib/gemfire-functions_2.10-0.5.0.jar
 
 5)
 
@@ -31,8 +36,8 @@ gfsh> create region --name=int_str_region --type=PARTITION --key-constraint=java
 
 6)
 
-   spark-shell --master local[*] --jars /Users/fmelo/WifiAnalyticsIoT/server/geode-spark-connector/gemfire-spark-connector_2.10-0.5.0.jar,/Users/fmelo/geode/lib/gemfire-core-dependencies.jar
-
+   spark-shell --master local[*] --jars lib/gemfire-spark-connector_2.10-0.5.0.jar,$GEODE_HOME/lib/gemfire-core-dependencies.jar
+   
 7)
 
 scala> import io.pivotal.gemfire.spark.connector._
