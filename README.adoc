@@ -11,8 +11,51 @@ Tested with
 
 ---
    $ echo spark.gemfire.locators=localhost[10334] >> $SPARK_HOME/conf/spark-defaults.conf
-
 ---
+
+### Setup Data
+
+Start Geode
+----
+$ $GEODE_HOME/bin/gfsh
+(...)
+
+gfsh>start locator --name=locator1
+
+gfsh>start server --name=server1 --locators=localhost[10334] --server-port=0
+
+gfsh>start server --name=server2 --locators=localhost[10334] --server-port=0
+
+gfsh>deploy --jar=lib/gemfire-functions_2.10-0.5.0.jar
+
+gfsh>create region --name=Stocks --type=PARTITION 
+----
+
+Create Streams:
+----
+$ xd-shell
+(...)
+$ xd:> script --file streaming/stream-create.xd
+----
+
+
+
+
+### Setup Streams
+
+Start Spring XD Server
+----
+$ xd-singlenode
+----
+
+Create Streams:
+----
+$ xd-shell
+(...)
+$ xd:> script --file streaming/stream-create.xd
+----
+
+
 
 ### Draft:
 
