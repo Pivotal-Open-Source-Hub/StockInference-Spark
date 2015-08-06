@@ -31,12 +31,6 @@ gfsh>deploy --jar=lib/gemfire-functions_2.10-0.5.0.jar
 gfsh>create region --name=Stocks --type=PARTITION 
 ----
 
-Create Streams:
-----
-$ xd-shell
-(...)
-$ xd:> script --file streaming/stream-create.xd
-----
 
 
 
