@@ -16,7 +16,7 @@ Frederico-Melos-MacBook-Pro:tmp fmelo$ $GEODE_HOME/bin/gfsh
 
 2)
 
-gfsh>start locator --name=locator1 --port=55221
+gfsh>start locator --name=locator1
 
 3)
 
