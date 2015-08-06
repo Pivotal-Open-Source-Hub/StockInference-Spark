@@ -1,0 +1,12 @@
+# GemFire setup
+
+connect --locator=locator[10334]
+
+create region --name=/Stocks --type=REPLICATE
+
+import data --file=/data/TSLA.gfd --region=/Stocks --member=CONTAINER_ID
+
+create region --name=/Predictions --type=REPLICATE
+
+describe region --name=/Stocks
+describe region --name=/Predictions
