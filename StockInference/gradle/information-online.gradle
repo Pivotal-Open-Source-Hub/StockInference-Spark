@@ -1,0 +1,51 @@
+task openPageForNedsSpark(type: OpenPage) {
+    group "Lab"
+    description "Visit Neds Project on Google Drive"
+    uri "https://drive.google.com/file/d/0B0ZE5JyeFFI0VDJoc2xyU1l6WGM/view?usp=sharing"
+}
+
+task quickStartGuide(type: OpenPage) {
+    group = "Documentation"
+    description = "Open the Spark quick start guide"
+    uri "https://spark.apache.org/docs/latest/quick-start.html"
+}
+
+task sparkApiDocumentation(type: OpenPage) {
+    group = "Documentation"
+    description = "Open the Spark API Docs in your browser"
+    uri = "https://spark.apache.org/docs/1.3.1/api/scala/index.html"
+}
+
+task sparkDownloadPage(type: OpenPage) {
+    group = "Tools Download"
+    description = "Open the Spark Downloads page to get the version you need"
+    uri "http://spark.apache.org/downloads.html"
+}
+
+task eclipseDownload(type: OpenPage) {
+    group = "Tools Download"
+    description = "Opens the Scala Eclipse IDE download page"
+    uri "http://scala-ide.org/download/sdk.html"
+}
+
+task ideaCEDownload(type: OpenPage) {
+    group = "Tools Download"
+    description = "Opens IDEAs download page"
+    uri "https://www.jetbrains.com/idea/download/"
+    doFirst {
+        logger.quiet("Opening IDEA download page.  You can use the free Community Edition " +
+                "with the scala plugin")
+    }
+}
+
+import static java.awt.Desktop.desktop
+
+public class OpenPage extends DefaultTask {
+    @Input
+    String uri
+
+    @TaskAction
+    def open() {
+        desktop.browse(uri.toURI())
+    }
+}

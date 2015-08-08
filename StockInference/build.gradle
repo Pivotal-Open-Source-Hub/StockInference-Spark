@@ -1,0 +1,72 @@
+apply plugin: 'scala'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+apply from: 'gradle/downloads.gradle'
+apply from: 'gradle/information-online.gradle'
+
+buildscript {
+    repositories {
+        flatDir dir: "${projectDir}/gradle/plugins"
+    }
+    dependencies {
+        classpath "de.undercouch:gradle-download-task:1.2"
+    }
+}
+apply plugin: "de.undercouch.download"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+version = '1.0'
+
+def scalaVersion = '2.10.5'
+def sparkVersion = '1.3.1'
+
+def gemSparkLibPath = "/Users/fmelo/StockInference-Spark/lib"
+def geodeHome = "/Users/fmelo/geode"
+
+
+repositories {
+    flatDir {
+        dirs gemSparkLibPath
+    }
+    jcenter()
+}
+
+configurations {
+    idea {
+        transitive = true
+    }
+}
+
+dependencies {
+    // this will download scala for you
+    compile "org.scala-lang:scala-library:$scalaVersion"
+    
+	compile 'org.apache.spark:spark-core_2.10:1.3.1'
+	compile 'org.apache.spark:spark-mllib_2.10:1.3.1'
+	compile 'org.apache.spark:spark-streaming_2.10:1.3.1'
+    
+    compile files(gemSparkLibPath + "/gemfire-spark-connector_2.10-0.5.0.jar") {
+        builtBy 'Gem'
+    }
+    
+    compile files(geodeHome + "/lib/gemfire-core-dependencies.jar") {
+        builtBy 'Gem'
+    }
+
+    // offline jars for IDEA scala integration support
+    idea "org.scala-lang:scala-library:$scalaVersion"
+    idea "org.scala-lang:scala-compiler:$scalaVersion"
+    idea "org.scala-lang:scala-reflect:$scalaVersion"
+    zinc "com.typesafe.zinc:zinc:0.3.0"
+
+}
+
+// try the zinc compiler as scalac 2.10.x doesnt understand target:jvm-1.8
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.useAnt = false
+}
+
+
+

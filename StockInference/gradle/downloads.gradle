@@ -1,0 +1,141 @@
+/**
+ * This file has tasks to download all the Tools for the workshop
+ */
+buildscript {
+    repositories {
+        flatDir dir: "${projectDir}/gradle/plugins"
+    }
+    dependencies {
+        classpath 'de.undercouch:gradle-download-task:1.2'
+    }
+}
+
+/* Place the wrapper zips in the tools folder for inclusion in USB */
+import static org.gradle.api.tasks.wrapper.Wrapper.PathBase.*
+wrapper {
+    gradleVersion = 2.3
+    archiveBase = PROJECT
+    archivePath = 'tools/gradle'
+    distributionUrl = distributionUrl.replace('-bin.zip','-all.zip')
+}
+
+import de.undercouch.gradle.tasks.download.Download
+
+task downloadNedsSpark(type: Download) {
+    group "Lab"
+    description "Download the special spark distro for the night"
+    src "https://doc-0c-1s-docs.googleusercontent.com/docs/securesc/i79mpt1cnmodd490teh8lqjvsrv49t29/o8e08m40tbrr9hoi7ir2m50pvgtu282t/1429250400000/08545749745465124544/12916015598608622046/0B0ZE5JyeFFI0VDJoc2xyU1l6WGM?e=download&nonce=asjt36o9sspm0&user=12916015598608622046&hash=a0294fpd1vs01ncfvq9sf9knl7ihj0ih"
+    dest "$projectDir/data/spark.tar.gz"
+}
+
+task downloadExampleData(type: Download) {
+    group "Lab"
+    description "Download the data examples"
+    src "https://copy.com/KKYgChU0qRX6sYeS/data.zip?download=1"
+    dest dataDestDir
+    overwrite false
+}
+
+task extractExampleData(type: Copy, dependsOn: downloadExampleData) {
+    group "Lab"
+    description "ExtractExampleData"
+    from zipTree(dataDestDir)
+    into projectDir
+}
+
+import java.nio.file.Paths
+def sparkDistroPath = Paths.get(projectDir.absolutePath, 'tools','spark')
+
+task downloadSparkDistro(type: Download) {
+    group "Lab"
+    description "Downloads the Spark $sparkVersion & Hadoop $hadoopVersion package from the spark webpage"
+
+    def fileName = sparkDistroFileName(sparkVersion, hadoopVersion)
+    src "https://mirror.aarnet.edu.au/pub/apache/spark/"+
+            "spark-$sparkVersion/" + fileName
+    dest "${sparkDistroPath.toString()}/$fileName"
+
+    overwrite false
+    onlyIfNewer true
+    doFirst {
+        project.mkdir(sparkDistroPath.toFile())
+    }
+    doLast {
+        logger.info("Downloaded Spark and Hadoop from $src to $project.buildDir")
+    }
+}
+
+def GString sparkDistroFileName(sparkVersion, hadoopVersion) {
+    "spark-$sparkVersion-bin-hadoop${hadoopVersion}.tgz"
+}
+
+task extractSparkDistro(type: Copy, dependsOn: downloadSparkDistro) {
+    group "Lab Tools download"
+    description "Extract downloaded distribution to build directory"
+    from tarTree(resources.gzip(downloadSparkDistro.dest))
+    into "tools"
+}
+
+def eclipseURLs = [
+	MacOSXCocoa64bit : "http://downloads.typesafe.com/scalaide-pack/4.0.0.vfinal-luna-211-20150305/scala-SDK-4.0.0-vfinal-2.11-macosx.cocoa.x86_64.zip",
+	MacOSXCocoa32bit : "http://downloads.typesafe.com/scalaide-pack/4.0.0.vfinal-luna-211-20150305/scala-SDK-4.0.0-vfinal-2.11-macosx.cocoa.x86.zip",
+        Windows64bit : "http://downloads.typesafe.com/scalaide-pack/4.0.0.vfinal-luna-211-20150305/scala-SDK-4.0.0-vfinal-2.11-win32.win32.x86_64.zip",
+	    Windows32bit : "http://downloads.typesafe.com/scalaide-pack/4.0.0.vfinal-luna-211-20150305/scala-SDK-4.0.0-vfinal-2.11-win32.win32.x86.zip",
+       LinuxGTK64bit : "http://downloads.typesafe.com/scalaide-pack/4.0.0.vfinal-luna-211-20150305/scala-SDK-4.0.0-vfinal-2.11-linux.gtk.x86_64.tar.gz",
+	   LinuxGTK32bit : "http://downloads.typesafe.com/scalaide-pack/4.0.0.vfinal-luna-211-20150305/scala-SDK-4.0.0-vfinal-2.11-linux.gtk.x86.tar.gz"
+]
+
+def intelliJURLs = [
+    scalaPlugin : "https://plugins.jetbrains.com/files/1347/19130/scala-intellij-bin-1.4.15.zip",
+	Windows : "http://download.jetbrains.com/idea/ideaIC-14.1.1.exe",
+	MacOSX : "http://download.jetbrains.com/idea/ideaIC-14.1.1.dmg",
+	Linux : "http://download.jetbrains.com/idea/ideaIC-14.1.1.tar.gz",
+]
+
+task downloadAllIDEs << {
+    def scalaLinks = urlPathMap(eclipseURLs, "Eclipse")
+    def ideaLinks = urlPathMap(intelliJURLs, "Idea")
+    def allLinks = scalaLinks + ideaLinks
+    logger.info("About to download the following links")
+    allLinks.each { url, destination ->
+        def destPath = "${destination}/${URI.create(url).toURL().getPath().tokenize('/')[-1]}"
+        logger.debug "Download $url to $destPath"
+        download {
+            src url
+            dest destPath
+            overwrite false
+            onlyIfNewer true
+        }
+    }
+}
+
+tasks.downloadAllIDEs {
+    group "Lab"
+    description "Downloads all IDES for the lab for all platforms.  Good for instructors preparing a USB stick"
+}
+
+private def urlPathMap(LinkedHashMap<String, String> ideMap, ideName) {
+    def entries = ideMap.collectEntries { String platform, String url ->
+        [url, "$projectDir/tools/ide/$ideName/$platform"]
+    }
+    entries as Map<String, String>
+}
+
+[Idea:intelliJURLs, Eclipse:eclipseURLs].each { ide, platformList ->
+    platformList.each { String platform, String url ->
+        def destFile = "$projectDir/tools/ide/$ide/$platform/${URI.create(url).toURL().getPath().tokenize('/')[-1]}"
+        task "download${ide}For$platform"(type: Download) {
+            group "IDE Downloads"
+            description "Download $ide for $platform"
+
+            doFirst {
+                mkdir(destFile)
+            }
+
+            src url
+            dest destFile
+            overwrite false
+            onlyIfNewer true
+        }
+    }
+}
