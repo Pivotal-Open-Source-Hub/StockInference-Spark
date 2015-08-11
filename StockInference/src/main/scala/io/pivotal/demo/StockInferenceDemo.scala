@@ -18,6 +18,7 @@ import org.apache.spark.mllib.regression.LinearRegressionWithSGD
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS, LogisticRegressionModel}
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.sql.Row
 
 
 /**
@@ -25,10 +26,12 @@ import org.apache.spark.mllib.evaluation.MulticlassMetrics
  */
 object StockInferenceDemo {
 
+
+  
   def main(args: Array[String]) {
 
     
-    val conf = new SparkConf().setMaster("local").setAppName("StreamingLinearRegression")
+    val conf = new SparkConf().setMaster("local[*]").setAppName("StreamingLinearRegression")
     
     conf.set("spark.gemfire.locators", "localhost[10334]");
     
@@ -37,8 +40,19 @@ object StockInferenceDemo {
     val sc = new SparkContext(conf);
     val sqlContext = new SQLContext(sc);
     
-    val df = sqlContext.gemfireOQL("SELECT s.Change, s.DaysHigh FROM /Stocks s")
-    val rdd = df.rdd;
+    val df = sqlContext
+            .gemfireOQL("SELECT s.Change, s.DaysHigh, s.entryTimestamp FROM /Stocks s ")            
+            .sort($"entryTimestamp".desc)
+            
+   
+    val rdd = df.rdd
+    
+    val numPeriods = 10
+    
+
+    val averageChange = TechIndicators.calculateAvg(rdd, 0, numPeriods);
+                      
+    
     
     val dataset = rdd.map { line => 
       LabeledPoint(line.getString(0).toDouble, Vectors.dense(line.getString(1).toDouble))
@@ -47,8 +61,7 @@ object StockInferenceDemo {
     val splits = dataset.randomSplit(Array(0.6, 0.4), seed = 11L)
     val training = splits(0).cache()
     val test = splits(1)     
-     
-    
+         
      
     val numValues = dataset.count    
     println("Got " + numValues + " values from Gem")
@@ -57,7 +70,50 @@ object StockInferenceDemo {
     val model = LinearRegressionWithSGD.train(training, numIterations)
      
      
+    /*
+    
+val res = rdd.map(t => (t._1, (t._2.foo, 1))).reduceByKey((x,y) => (x._1+x._2, y._1+y._2)).collect    
 
+
+input
+  .map{ case (k, v) => (k, (1, v, v*v)) }
+  .reduceByKey { case ((c1, s1, ss1), (c2, s2, ss2)) => (c1+c2, s1+s2, ss1+ss2) }
+  .map { case (k, (count, sum, sumsq)) => (k, sumsq/count - (sum/count * sum/count)) }
+  
+  
+        val grouped = rdd.groupByKey().mapValues { mcs => 
+          val values = mcs.map(_.foo.toDouble) 
+          val n = values.count(x => true) 
+          val sum = values.sum 
+          val sumSquares = values.map(x => x * x).sum 
+          val stddev = math.sqrt(n * sumSquares - sum * sum) / n 
+          print("stddev: " + stddev) 
+          stddev 
+        } 
+
+        
+import org.apache.spark.util.StatCounter 
+
+val a = ordersRDD.join(ordersRDD).map{case((partnerid, itemid),((matchedida, pricea), (matchedidb, priceb))) => ((matchedida, matchedidb), (if(priceb > 0) (pricea/priceb).toDouble else 0.toDouble))} 
+        .groupByKey 
+        .mapValues( value => org.apache.spark.util.StatCounter(value)) 
+        .take(5) 
+        .foreach(println) 
+
+output: 
+
+((2383,2465),(count: 4, mean: 0.883642, stdev: 0.086068, max: 0.933333, min: 0.734568)) 
+((2600,6786),(count: 4, mean: 2.388889, stdev: 0.559094, max: 3.148148, min: 1.574074)) 
+((2375,2606),(count: 6, mean: 0.693981, stdev: 0.305744, max: 1.125000, min: 0.453704)) 
+((6780,2475),(count: 2, mean: 0.827549, stdev: 0.150991, max: 0.978541, min: 0.676558)) 
+((2475,2606),(count: 7, mean: 3.975737, stdev: 3.356274, max: 9.628572, min: 0.472222))
+
+
+  
+scala> data.mapValues((_, 1)).reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2)).mapValues{ case (sum, count) => (1.0 * sum)/count}.collectAsMap()
+  
+
+*/
      /*
       *  ONLY VALUES FROM 0 to 9 POSSIBLE  
       *
