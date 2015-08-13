@@ -41,10 +41,14 @@ object StockInferenceDemo {
     val sqlContext = new SQLContext(sc);
     
     val df = sqlContext
-            .gemfireOQL("SELECT s.Change, s.DaysHigh, s.entryTimestamp FROM /Stocks s ")            
-            .sort($"entryTimestamp".desc)
+            .gemfireOQL("SELECT s.Change, s.DaysHigh, s.entryTimestamp FROM /Stocks s ");   
+    
+    df.registerTempTable("stocks");
+    val result = sqlContext.sql("select * from stocks s order by s.entryTimestamp desc limit 10")
+       
+
+
             
-   
     val rdd = df.rdd
     
     val numPeriods = 10
