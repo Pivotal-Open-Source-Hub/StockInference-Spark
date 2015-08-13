@@ -49,7 +49,7 @@ object StockInferenceDemo {
 
 
             
-    val rdd = df.rdd
+    val rdd = result.rdd
     
     val numPeriods = 10
     
