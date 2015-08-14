@@ -27,58 +27,20 @@ object StockInferenceDemo {
   
   
   
-  def getTrainingData(sqlContext: SQLContext) {
+  def getDataSet(sqlContext: SQLContext):RDD[LabeledPoint] = {
 
-    val df = sqlContext
-            .gemfireOQL("SELECT s.LastTradePriceOnly, s.DaysHigh, s.entryTimestamp FROM /Stocks s ");   
+    val df = sqlContext.gemfireOQL("SELECT t.ema, t.future_ema, t.close, t.entryTimestamp FROM /TechIndicators t ");   
     
-    df.registerTempTable("stocks");
+    df.registerTempTable("tech_indicators");
     
-    val result = sqlContext.sql("select * from stocks s order by s.entryTimestamp desc limit 100000")
+    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema  from tech_indicators t order by entryTimestamp desc limit 100000")
     val rdd = result.rdd
-    
-    case class NameValueWithLag(name: String, value: Int, lag: Int)
-    val cnt = rdd.count() - 1
-  
-    // CREATE THE RDD TO TRAIN THE ML ALGORITHM
-    // EMA_LAG, CLOSE, EMA
-    // http://stackoverflow.com/questions/31538007/is-there-an-rdd-transform-function-that-looks-at-neighboring-elements
-    
-    // 2 - timestamp
-    // 1 - High
-    // 0 - Close
-    
-    
-    rdd.
-      zipWithIndex.
-      flatMap{case (x, i) => (0 to 1).map(lag => (i - lag, (i, x)))}.//.foreach(f => println(f))
-      groupByKey.
-      filter{ case (k, v) => k != cnt}.
-      values.
-      map(vals => {
-          //val sorted = vals.toArray.sortBy(_._1).map(_._2)
-          var values = vals.toArray
-          if (vals.size == cnt-1) {
-            values(0).
-              LabeledPoint(0, Vectors.dense(values(0).getString(1).toDouble))
-              //LabeledPoint((0, )
-          } else {
-              NameValueWithLag(
-                 sorted(1).name, sorted(1).value,
-                 sorted(1).value - sorted(0).value
-              )
-          }
-      })        
-    
-    
-    
-    
-    val dataset = rdd.map { line => 
-      LabeledPoint(line.getString(0).toDouble, Vectors.dense(line.getString(1).toDouble))
+        
+    rdd.map { line => 
+      LabeledPoint(line.getDouble(3), Vectors.dense(line.getDouble(1), line.getDouble(2)))
     }.cache()
       
-    
-    
+        
   }
   
   
@@ -95,6 +57,7 @@ object StockInferenceDemo {
     val sc = new SparkContext(conf);
     val sqlContext = new SQLContext(sc);
     
+    /*
     val df = sqlContext
             .gemfireOQL("SELECT s.LastTradePriceOnly, s.DaysHigh, s.entryTimestamp FROM /Stocks s ");   
     
@@ -116,6 +79,10 @@ object StockInferenceDemo {
     val dataset = rdd.map { line => 
       LabeledPoint(line.getString(0).toDouble, Vectors.dense(line.getString(1).toDouble))
      }.cache()
+    
+    */
+    val dataset = getDataSet(sqlContext)
+    
     
     val splits = dataset.randomSplit(Array(0.6, 0.4), seed = 11L)
     val training = splits(0).cache()
