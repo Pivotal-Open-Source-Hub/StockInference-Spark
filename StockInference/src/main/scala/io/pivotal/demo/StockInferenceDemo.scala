@@ -36,8 +36,9 @@ object StockInferenceDemo {
     val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema  from tech_indicators t order by entryTimestamp desc limit 100000")
     val rdd = result.rdd
         
+    // TODO: "CLOSE" is being registered in Gem PDX as a String. Need to find out why.
     rdd.map { line => 
-      LabeledPoint(line.getDouble(3), Vectors.dense(line.getDouble(1), line.getDouble(2)))
+      LabeledPoint(line.getDouble(3), Vectors.dense(line.getString(1).toDouble, line.getDouble(2)))
     }.cache()
       
         

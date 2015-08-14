@@ -67,7 +67,7 @@ while(TRUE) {
   	updated_rows <- rbind(updated_rows,newrow)
 
   	# create the new line, with values coming from the std input and calculated indicators
-  	updated_rows[nrow(updated_rows),] <- data.frame(streamRow$entryTimestamp, inputs$ema[nrow(inputs)], 0, inputs$close[nrow(inputs)]);
+  	updated_rows[nrow(updated_rows),] <- data.frame(streamRow$entryTimestamp, inputs$ema[nrow(inputs)], inputs$ema[nrow(inputs)], inputs$close[nrow(inputs)]);
 
   	updated_rows <- toJSON(updated_rows);
   	cat (updated_rows)
