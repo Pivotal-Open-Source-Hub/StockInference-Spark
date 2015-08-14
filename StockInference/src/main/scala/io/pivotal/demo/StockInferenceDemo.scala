@@ -28,6 +28,11 @@ object StockInferenceDemo {
   
   
   def getTrainingData(sqlContext: SQLContext) {
+
+    val df = sqlContext
+            .gemfireOQL("SELECT s.LastTradePriceOnly, s.DaysHigh, s.entryTimestamp FROM /Stocks s ");   
+    
+    df.registerTempTable("stocks");
     
     val result = sqlContext.sql("select * from stocks s order by s.entryTimestamp desc limit 100000")
     val rdd = result.rdd
@@ -38,16 +43,25 @@ object StockInferenceDemo {
     // CREATE THE RDD TO TRAIN THE ML ALGORITHM
     // EMA_LAG, CLOSE, EMA
     // http://stackoverflow.com/questions/31538007/is-there-an-rdd-transform-function-that-looks-at-neighboring-elements
+    
+    // 2 - timestamp
+    // 1 - High
+    // 0 - Close
+    
+    
     rdd.
       zipWithIndex.
-      flatMap{case (x, i) => (0 to 1).map(lag => (i - lag, (i, x)))}.
+      flatMap{case (x, i) => (0 to 1).map(lag => (i - lag, (i, x)))}.//.foreach(f => println(f))
       groupByKey.
       filter{ case (k, v) => k != cnt}.
       values.
       map(vals => {
-          val sorted = vals.toArray.sortBy(_._1).map(_._2)
-          if (sorted.length == 1) {
-              NameValueWithLag(sorted(0).name, sorted(0).value, sorted(0).value)
+          //val sorted = vals.toArray.sortBy(_._1).map(_._2)
+          var values = vals.toArray
+          if (vals.size == cnt-1) {
+            values(0).
+              LabeledPoint(0, Vectors.dense(values(0).getString(1).toDouble))
+              //LabeledPoint((0, )
           } else {
               NameValueWithLag(
                  sorted(1).name, sorted(1).value,
@@ -82,7 +96,7 @@ object StockInferenceDemo {
     val sqlContext = new SQLContext(sc);
     
     val df = sqlContext
-            .gemfireOQL("SELECT s.Change, s.DaysHigh, s.entryTimestamp FROM /Stocks s ");   
+            .gemfireOQL("SELECT s.LastTradePriceOnly, s.DaysHigh, s.entryTimestamp FROM /Stocks s ");   
     
     df.registerTempTable("stocks");
     val result = sqlContext.sql("select * from stocks s order by s.entryTimestamp desc limit 10")
