@@ -37,6 +37,7 @@ object StockInferenceDemo {
   
     // CREATE THE RDD TO TRAIN THE ML ALGORITHM
     // EMA_LAG, CLOSE, EMA
+    // http://stackoverflow.com/questions/31538007/is-there-an-rdd-transform-function-that-looks-at-neighboring-elements
     rdd.
       zipWithIndex.
       flatMap{case (x, i) => (0 to 1).map(lag => (i - lag, (i, x)))}.
