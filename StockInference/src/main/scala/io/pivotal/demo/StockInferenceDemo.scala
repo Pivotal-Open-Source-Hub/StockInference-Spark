@@ -1,24 +1,22 @@
 package io.pivotal.demo
 
-import org.apache.spark.mllib.regression.StreamingLinearRegressionWithSGD
-import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.SparkContext
-import org.apache.spark.mllib.util.MLUtils
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.DataFrame
-import io.pivotal.gemfire.spark.connector._
+import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.rdd._
-import org.apache.spark.mllib.recommendation.{ALS, Rating, MatrixFactorizationModel}
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.regression.LinearRegressionModel
 import org.apache.spark.mllib.regression.LinearRegressionWithSGD
-import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS, LogisticRegressionModel}
-import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.regression.StreamingLinearRegressionWithSGD
+import org.apache.spark.rdd._
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.SQLContext
+
+import io.pivotal.gemfire.spark.connector._
 
 
 /**
@@ -26,7 +24,49 @@ import org.apache.spark.sql.Row
  */
 object StockInferenceDemo {
 
-
+  
+  
+  
+  def getTrainingData(sqlContext: SQLContext) {
+    
+    val result = sqlContext.sql("select * from stocks s order by s.entryTimestamp desc limit 100000")
+    val rdd = result.rdd
+    
+    case class NameValueWithLag(name: String, value: Int, lag: Int)
+    val cnt = rdd.count() - 1
+  
+    // CREATE THE RDD TO TRAIN THE ML ALGORITHM
+    // EMA_LAG, CLOSE, EMA
+    rdd.
+      zipWithIndex.
+      flatMap{case (x, i) => (0 to 1).map(lag => (i - lag, (i, x)))}.
+      groupByKey.
+      filter{ case (k, v) => k != cnt}.
+      values.
+      map(vals => {
+          val sorted = vals.toArray.sortBy(_._1).map(_._2)
+          if (sorted.length == 1) {
+              NameValueWithLag(sorted(0).name, sorted(0).value, sorted(0).value)
+          } else {
+              NameValueWithLag(
+                 sorted(1).name, sorted(1).value,
+                 sorted(1).value - sorted(0).value
+              )
+          }
+      })        
+    
+    
+    
+    
+    val dataset = rdd.map { line => 
+      LabeledPoint(line.getString(0).toDouble, Vectors.dense(line.getString(1).toDouble))
+    }.cache()
+      
+    
+    
+  }
+  
+  
   
   def main(args: Array[String]) {
 
@@ -46,7 +86,7 @@ object StockInferenceDemo {
     df.registerTempTable("stocks");
     val result = sqlContext.sql("select * from stocks s order by s.entryTimestamp desc limit 10")
        
-
+    
 
             
     val rdd = result.rdd
