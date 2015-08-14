@@ -22,7 +22,7 @@ $ $GEODE_HOME/bin/gfsh
 
 gfsh>start locator --name=locator1
 
-gfsh>start server --name=server1 --locators=localhost[10334] --server-port=0
+gfsh>start server --name=server1 --locators=localhost[10334] --server-port=0 --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8080
 
 gfsh>start server --name=server2 --locators=localhost[10334] --server-port=0
 
