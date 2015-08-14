@@ -1,6 +1,3 @@
-```
-```
-
 # Apache Geode Lab
 
 ## Requirements
@@ -9,7 +6,7 @@
 * Git
 * Gradle __<optional>__
 
-## Build 
+## Build
 
 * Obtaining the source code
 
@@ -92,6 +89,3 @@ gfsh> stop locator --name=locator1
 ```
 
 * Before moving the to next lab run the script `startGeode.sh` available at the `data` folder.
-
-
-
