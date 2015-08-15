@@ -11,17 +11,19 @@ This VM has all the required software to run the lab, including:
 
 # Instructions
 
-1. Starting the VM
+* Starting the VM
 ```
 $ vagrant up
 ```
-1. Using SSH
+
+* Using SSH
 ```
 $ vagrant ssh
 [vagrant@stocks-vm, load: 0.01]
 ~ $
 ```
-1. Stopping the VM
+
+* Stopping the VM
 ```
 $ vagrant halt
 ```
