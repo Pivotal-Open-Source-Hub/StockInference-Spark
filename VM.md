@@ -6,6 +6,8 @@ This VM has all the required software to run the lab, including:
 * Spring XD 2.0 snapshot
 * Apache Spark 1.3.1
 * Apache Zeppelin (Incubating)
+* Gradle 2.3
+* Maven 3
 
 # Instructions
 
