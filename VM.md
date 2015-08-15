@@ -22,12 +22,12 @@ $ vagrant ssh
 [vagrant@stocks-vm, load: 0.01]
 ~ $
 ```
-
+*. Run the test script
+```
+$ ?
+```
 * Stopping the VM
 ```
 $ vagrant halt
 ```
-1. Run the test script
-```
-$ ?
-```
+
