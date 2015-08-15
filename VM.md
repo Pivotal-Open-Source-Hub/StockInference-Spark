@@ -16,11 +16,12 @@ $ vagrant up
 1. Using SSH
 ```
 $ vagrant ssh
+[vagrant@stocks-vm, load: 0.01]
+~ $
 ```
-1. Check environment variables
+1. Stopping the VM
 ```
-$ cd StockInference-Spark
-$
+$ vagrant halt
 ```
 1. Run the test script
 ```
