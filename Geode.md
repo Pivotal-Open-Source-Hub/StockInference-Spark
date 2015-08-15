@@ -18,7 +18,6 @@ $ git checkout develop
 $ ./gradlew build -Dskip.tests=true
 ```
 
-
 ## Starting a Geode cluster
 
 * Starting a `locator` and a `server`
@@ -30,8 +29,7 @@ $ gfsh start server --name=server1 --locators=localhost[10334]
 ...
 ```
 
-* Connecting to the cluster using `gfsh`
-
+## Using `gfsh` (Geode CLI)
 
 ```
 $ gfsh
@@ -52,7 +50,7 @@ locator1 | anakin(locator1:70957:locator)<v0>:9773
 server1  | anakin(server1:71106)<v1>:34411
 ```
 
-* Creating a region and basic operations
+* Creating a `region` and basic operations
 
 ```
 gfsh>create region --name=myRegion --type=PARTITION
@@ -77,7 +75,7 @@ Value       : value1
 
 * Try to do another put using different values or using an existing key.
 * Try to remove an entry using a key
-* While still connected to `gfsh` stop the locator and the server
+* While still connected to `gfsh` stop the *locator* and the *server*
 
 ```
 gfsh> stop server --name=server1

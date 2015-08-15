@@ -9,6 +9,11 @@ This VM has all the required software to run the lab, including:
 * Gradle 2.3
 * Maven 3
 
+## Requirements
+
+* Vagrant
+* VirtualBox
+
 # Instructions
 
 * Starting the VM
