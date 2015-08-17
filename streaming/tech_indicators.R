@@ -33,31 +33,30 @@ while(TRUE) {
   dataset[nrow(dataset),] <- c(as.numeric(streamRow$DaysHigh), as.numeric(streamRow$DaysLow), as.numeric(streamRow$LastTradePriceOnly))
   
 
-  # include technical indicators
+  # include a few technical indicators
   ema <- EMA(as.numeric(dataset$Close)) # lag = n-1 (default=9)
   ema_diff <- as.numeric(dataset$Close) - ema # lag = above
   rsi <- RSI(as.numeric(dataset$Close)) # lag = n (default=14)
 #  smi <- SMI(HLC(dataset))     # lag = nSlow+nSig (default=34)
 #  sar <- SAR(HLC(dataset))     # lag = 0
-
-  ema_lag <- lag.xts (ema, k=-1)
+#  ema_lag <- lag.xts (ema, k=-1)
 
   high_diff = as.numeric(dataset$High)-as.numeric(dataset$Close)
-  low_diff = as.numeric(dataset$Close)-as.numeric(dataset$Low)
+  low_diff = as.numeric(dataset$Low)-as.numeric(dataset$Close)
 
   inputs <- data.frame(dataset$Close, ema, ema_diff, rsi, high_diff, low_diff)
   names(inputs) <- c("close", "ema", "ema_diff", "rsi", "high_diff", "low_diff")
  
-  inputs <- inputs[-1:-35,]
-  historicalSet <- historicalSet[-1:-35,]
-  dataset <- dataset[-1:-35,]
-  ema_lag <- ema_lag[-1:-35]
+# Skipping the first 15 lines due to lag on indicators
+  inputs <- inputs[-1:-15,]
+  historicalSet <- historicalSet[-1:-15,]
+  dataset <- dataset[-1:-15,]
 
   if (nrow(inputs)>0){
 
   	# Update last line, with the real future_ema value
-  	updated_rows <- data.frame(historicalSet$entryTimestamp[nrow(historicalSet)], inputs$ema[nrow(inputs)-1], inputs$ema[nrow(inputs)],inputs$close[nrow(inputs)-1]);
-  	names(updated_rows) <- c("entryTimestamp", "ema", "future_ema", "close")
+  	updated_rows <- data.frame(historicalSet$entryTimestamp[nrow(historicalSet)], inputs$ema[nrow(inputs)-1], inputs$ema[nrow(inputs)],inputs$close[nrow(inputs)-1], inputs$rsi[nrow(inputs)-1], inputs$ema_diff[nrow(inputs)-1], inputs$high_diff[nrow(inputs)-1], inputs$low_diff[nrow(inputs)-1]) ;
+  	names(updated_rows) <- c("entryTimestamp", "ema", "future_ema", "close", "rsi", "ema_diff", "high_diff", "low_diff")
 
 
   	#Add new row to the end of historical dataset for computing technical indicators.
@@ -67,7 +66,7 @@ while(TRUE) {
   	updated_rows <- rbind(updated_rows,newrow)
 
   	# create the new line, with values coming from the std input and calculated indicators
-  	updated_rows[nrow(updated_rows),] <- data.frame(streamRow$entryTimestamp, inputs$ema[nrow(inputs)], inputs$ema[nrow(inputs)], inputs$close[nrow(inputs)]);
+  	updated_rows[nrow(updated_rows),] <- data.frame(streamRow$entryTimestamp, inputs$ema[nrow(inputs)], inputs$ema[nrow(inputs)], inputs$close[nrow(inputs)], inputs$rsi[nrow(inputs)], inputs$ema_diff[nrow(inputs)], inputs$high_diff[nrow(inputs)], inputs$low_diff[nrow(inputs)] );
 
 	updated_rows$ema <- as.character(updated_rows$ema)
 	updated_rows$future_ema <- as.character(updated_rows$future_ema)

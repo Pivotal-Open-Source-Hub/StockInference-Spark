@@ -106,8 +106,8 @@ object StockInferenceDemo {
   valuesAndPreds2.foreach({case (v, f, p) => 
       println(s"Features: ${f}, Predicted: ${p}, Actual: ${v}")})   
     
-   val MSE = valuesAndPreds2.map{case(v, f, p) => math.pow((v - p), 2)}.mean()
-    println("training Mean Squared Error = " + MSE)
+  val MSE = valuesAndPreds2.map{case(v, f, p) => math.pow((v - p), 2)}.mean()
+  println("training Mean Squared Error = " + MSE)
 
     
    // model.save(sc, "myModelPath")
