@@ -15,8 +15,9 @@ import org.apache.spark.rdd._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.SQLContext
-
 import io.pivotal.gemfire.spark.connector._
+import org.apache.spark.mllib.feature.StandardScaler
+import org.apache.commons.logging.impl.Log4JLogger
 
 
 /**
@@ -24,25 +25,6 @@ import io.pivotal.gemfire.spark.connector._
  */
 object StockInferenceDemo {
 
-  
-  
-  
-  def getDataSet(sqlContext: SQLContext):RDD[LabeledPoint] = {
-
-    val df = sqlContext.gemfireOQL("SELECT t.ema, t.future_ema, t.close, t.entryTimestamp FROM /TechIndicators t ");   
-    
-    df.registerTempTable("tech_indicators");
-    
-    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema  from tech_indicators t order by entryTimestamp desc limit 100000")
-    val rdd = result.rdd
-        
-    // TODO: "CLOSE" is being registered in Gem PDX as a String. Need to find out why.
-    rdd.map { line => 
-      LabeledPoint(line.getDouble(3), Vectors.dense(line.getString(1).toDouble, line.getDouble(2)))
-    }.cache()
-      
-        
-  }
   
   
   
@@ -58,45 +40,80 @@ object StockInferenceDemo {
     val sc = new SparkContext(conf);
     val sqlContext = new SQLContext(sc);
     
-    /*
-    val df = sqlContext
-            .gemfireOQL("SELECT s.LastTradePriceOnly, s.DaysHigh, s.entryTimestamp FROM /Stocks s ");   
-    
-    df.registerTempTable("stocks");
-    val result = sqlContext.sql("select * from stocks s order by s.entryTimestamp desc limit 10")
-       
-    
 
-            
-    val rdd = result.rdd
+    val df = sqlContext.gemfireOQL("SELECT t.ema, t.future_ema, t.close, t.entryTimestamp FROM /TechIndicators t ");   
     
-    val numPeriods = 10
+    df.registerTempTable("tech_indicators");
     
+    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema  from tech_indicators t order by entryTimestamp desc")
+    val rdd = result.rdd.cache()
+        
+    // TODO: "CLOSE" is being registered in Gem PDX as a String. Need to find out why.
+    val dataset = rdd.map { line =>
+      LabeledPoint(line.getString(3).toDouble, Vectors.dense(line.getString(1).toDouble, line.getString(2).toDouble))
+    }.cache()    
+    
+    
+    
+    //val splits = dataset.randomSplit(Array(0.6, 0.4), seed = 11L)
+    //val training = splits(0).cache()
+    //val test = splits(1)     
 
-    val averageChange = TechIndicators.calculateAvg(rdd, 0, numPeriods);
-                      
-    
-    
-    val dataset = rdd.map { line => 
-      LabeledPoint(line.getString(0).toDouble, Vectors.dense(line.getString(1).toDouble))
-     }.cache()
-    
-    */
-    val dataset = getDataSet(sqlContext)
-    
-    
-    val splits = dataset.randomSplit(Array(0.6, 0.4), seed = 11L)
-    val training = splits(0).cache()
-    val test = splits(1)     
-         
      
     val numValues = dataset.count    
     println("Got " + numValues + " values from Gem")
+     /*
+    val model = LinearRegressionWithSGD.train(dataset, numIterations)
      
-    val numIterations = 1000
-    val model = LinearRegressionWithSGD.train(training, numIterations)
      
-     
+    val valuesAndPreds = dataset.map { point =>
+      val prediction = model.predict(point.features)
+       println("Predicted = " + prediction.doubleValue())
+       println("Real Value = " + point.label.doubleValue())
+       println("\n")
+      (point.label, prediction)
+    }
+    
+    val MSE = valuesAndPreds.map{case(v, p) => math.pow((v - p), 2)}.mean()
+    println("training Mean Squared Error = " + MSE)
+    */
+    
+    val numIterations = 2000
+         
+    
+    val stepSize = 0.2
+    val algorithm = new LinearRegressionWithSGD()
+    algorithm.setIntercept(true)
+    algorithm.optimizer
+      .setNumIterations(numIterations)
+      .setStepSize(stepSize)
+  
+     val scaler = new StandardScaler(withMean = true, withStd = true)
+                     .fit(dataset.map(x => x.features))    
+     val scaledData = dataset
+                    .map(x => 
+                    LabeledPoint(x.label, 
+                       scaler.transform(Vectors.dense(x.features.toArray)))).cache()
+      
+     val model2 = algorithm.run(scaledData)    
+
+ // Evaluate model on training examples
+  val valuesAndPreds2 = scaledData.map { point =>
+    val prediction = model2.predict(point.features)
+    (point.label, point.features, prediction)
+  }
+  // Print out features, actual and predicted values...
+  valuesAndPreds2.foreach({case (v, f, p) => 
+      println(s"Features: ${f}, Predicted: ${p}, Actual: ${v}")})   
+    
+   val MSE = valuesAndPreds2.map{case(v, f, p) => math.pow((v - p), 2)}.mean()
+    println("training Mean Squared Error = " + MSE)
+
+    
+   // model.save(sc, "myModelPath")
+   // val sameModel = LinearRegressionModel.load(sc, "myModelPath")
+    
+    
     /*
     
 val res = rdd.map(t => (t._1, (t._2.foo, 1))).reduceByKey((x,y) => (x._1+x._2, y._1+y._2)).collect    

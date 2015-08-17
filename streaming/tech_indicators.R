@@ -69,6 +69,9 @@ while(TRUE) {
   	# create the new line, with values coming from the std input and calculated indicators
   	updated_rows[nrow(updated_rows),] <- data.frame(streamRow$entryTimestamp, inputs$ema[nrow(inputs)], inputs$ema[nrow(inputs)], inputs$close[nrow(inputs)]);
 
+	updated_rows$ema <- as.character(updated_rows$ema)
+	updated_rows$future_ema <- as.character(updated_rows$future_ema)
+	updated_rows$close <- as.character(updated_rows$close)
   	updated_rows <- toJSON(updated_rows);
   	cat (updated_rows)
   }
