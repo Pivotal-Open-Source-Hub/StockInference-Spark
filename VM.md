@@ -50,6 +50,9 @@ sudo add-apt-repository ppa:webupd8team/java -y
 sudo apt-get update
 sudo apt-get install -y oracle-java8-installer
 sudo apt-get install -y libcurl4-gnutls-dev nodejs maven npm unzip docker.io r-base-dev r-base
+sudo apt-get -f install
+wget http://www.scala-lang.org/files/archive/scala-2.10.5.deb
+sudo dpkg -i scala-2.10.5.deb
 sudo usermod -aG docker vagrant
 sudo service ntp stop
 sudo ntpd -gq
