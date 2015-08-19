@@ -68,9 +68,16 @@ while(TRUE) {
   	# create the new line, with values coming from the std input and calculated indicators
   	updated_rows[nrow(updated_rows),] <- data.frame(streamRow$entryTimestamp, inputs$ema[nrow(inputs)], inputs$ema[nrow(inputs)], inputs$close[nrow(inputs)], inputs$rsi[nrow(inputs)], inputs$ema_diff[nrow(inputs)], inputs$high_diff[nrow(inputs)], inputs$low_diff[nrow(inputs)] );
 
+        # output all numbers as strings, leave the rounding and type convertion up to the ML algorithm
+
 	updated_rows$ema <- as.character(updated_rows$ema)
 	updated_rows$future_ema <- as.character(updated_rows$future_ema)
 	updated_rows$close <- as.character(updated_rows$close)
+	updated_rows$rsi <- as.character(updated_rows$rsi)
+	updated_rows$ema_diff <- as.character(updated_rows$ema_diff)
+	updated_rows$high_diff <- as.character(updated_rows$high_diff)
+	updated_rows$low_diff <- as.character(updated_rows$low_diff)
+
   	updated_rows <- toJSON(updated_rows);
   	cat (updated_rows)
   }

@@ -1,9 +1,12 @@
 package io.pivotal.demo
 
+import java.io.InputStream
+import org.apache.spark.SparkConf
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.feature.StandardScaler
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
@@ -16,10 +19,11 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.SQLContext
 import io.pivotal.gemfire.spark.connector._
-import org.apache.spark.mllib.feature.StandardScaler
-import org.apache.commons.logging.impl.Log4JLogger
-import org.apache.spark.SparkConf
-import org.apache.spark.mllib.classification.SVMWithSGD
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import scala.util.parsing.json.JSON
+import org.apache.spark.mllib.feature.StandardScalerModel
+
 
 
 /**
@@ -28,6 +32,8 @@ import org.apache.spark.mllib.classification.SVMWithSGD
 object StockInferenceDemo {
 
   val MODEL_PATH = "SparkModel"
+  
+  val SCALER_FILE = MODEL_PATH+"/scaler.obj"
   
   val conf = new SparkConf().setMaster("local[*]").setAppName("StockInferenceMLDemo")  
   conf.set("spark.gemfire.locators", "localhost[10334]");
@@ -46,11 +52,10 @@ object StockInferenceDemo {
     .setNumIterations(numIterations)
     .setStepSize(stepSize)
     
-  
+      
   def train() = {
     
-    val df = sqlContext.gemfireOQL("SELECT t.entryTimestamp, t.close, t.ema, t.future_ema, t.rsi, t.ema_diff, t.low_diff, t.high_diff FROM /TechIndicators t");   
-    
+    val df = sqlContext.gemfireOQL("SELECT t.entryTimestamp, t.close, t.ema, t.future_ema, t.rsi, t.ema_diff, t.low_diff, t.high_diff FROM /TechIndicators t");       
     df.registerTempTable("tech_indicators");
     
     val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema, rsi, ema_diff, low_diff, high_diff  from tech_indicators t order by entryTimestamp desc")
@@ -71,9 +76,12 @@ object StockInferenceDemo {
     }.cache()      
     
                  
-     val scaler = new StandardScaler(withMean = true, withStd = true)
+    val scaler = new StandardScaler(withMean = true, withStd = true)
                      .fit(dataset.map(x => x.features))    
-     val scaledData = dataset
+                     
+                          
+                     
+    val scaledData = dataset
                     .map(x => 
                     LabeledPoint(x.label, 
                        scaler.transform(Vectors.dense(x.features.toArray)))).cache()
@@ -84,9 +92,15 @@ object StockInferenceDemo {
 
                        
     println("\nGot " + dataset.count() + " values from Gem. Using " + trainingData.count() + " for training and "+ testingData.count() + " for testing\n")                       
-                       
+   
+    
      val model = algorithm.run(trainingData)    
-
+     
+     // save the trained model
+     model.save(sc, MODEL_PATH)
+     // save the scaler
+     sc.parallelize(Seq(scaler), 1).saveAsObjectFile(SCALER_FILE) 
+     
      // Test model on training examples
       val valuesAndPreds = testingData.map { point =>
         val prediction = model.predict(point.features)
@@ -99,164 +113,67 @@ object StockInferenceDemo {
       val MSE = valuesAndPreds.map{case(v, f, p) => math.pow((v - p), 2)}.mean()
       println("training Mean Squared Error = " + MSE)    
     
-     model.save(sc, MODEL_PATH)
     
   }
   
   
   def evaluate() ={
 
-    val model = LinearRegressionModel.load(sc, "myModelPath")
-    //model.predict(toPredict)
+    // load the model
+    val model = LinearRegressionModel.load(sc, MODEL_PATH)
+    
+    // load the scaler
+    val scaler = sc.objectFile[StandardScalerModel](SCALER_FILE).first()
+    
+    val br = new BufferedReader(new InputStreamReader(System in))
+
+    while (true){
+      val line = br.readLine()
+      val json = JSON.parseFull(line)
+      
+      val keyValueProps: Map[String,Any] = json.asInstanceOf[Map[String,Any]]
+      
+      val close = keyValueProps.get("close").toString().toDouble
+      val ema = keyValueProps.get("ema").toString().toDouble
+      val rsi = keyValueProps.get("rsi").toString().toDouble
+      val ema_diff = keyValueProps.get("ema_diff").toString().toDouble
+      val low_diff = keyValueProps.get("low_diff").toString().toDouble
+      val high_diff = keyValueProps.get("high_diff").toString().toDouble      
+          
+      
+      val input =  scaler.transform(Vectors.dense(close, ema, rsi, ema_diff, low_diff, high_diff))
+      val prediction = model.predict(input)
+
+      println(prediction)
+      
+    }
+    
+   
     
   }
   
+  def printUsage()={
+    println("Usage:  StockInferenceDemo <train|evaluate>")
+  }
   
   def main(args: Array[String]) {
 
-    train()
+    if (args.length!=1){
+      printUsage()
+    }
     
-    evaluate()    
-
-   // model.save(sc, "myModelPath")
-   // val sameModel = LinearRegressionModel.load(sc, "myModelPath")
-    
-    
-    /*
-    
-val res = rdd.map(t => (t._1, (t._2.foo, 1))).reduceByKey((x,y) => (x._1+x._2, y._1+y._2)).collect    
-
-
-input
-  .map{ case (k, v) => (k, (1, v, v*v)) }
-  .reduceByKey { case ((c1, s1, ss1), (c2, s2, ss2)) => (c1+c2, s1+s2, ss1+ss2) }
-  .map { case (k, (count, sum, sumsq)) => (k, sumsq/count - (sum/count * sum/count)) }
-  
-  
-        val grouped = rdd.groupByKey().mapValues { mcs => 
-          val values = mcs.map(_.foo.toDouble) 
-          val n = values.count(x => true) 
-          val sum = values.sum 
-          val sumSquares = values.map(x => x * x).sum 
-          val stddev = math.sqrt(n * sumSquares - sum * sum) / n 
-          print("stddev: " + stddev) 
-          stddev 
-        } 
-
-        
-import org.apache.spark.util.StatCounter 
-
-val a = ordersRDD.join(ordersRDD).map{case((partnerid, itemid),((matchedida, pricea), (matchedidb, priceb))) => ((matchedida, matchedidb), (if(priceb > 0) (pricea/priceb).toDouble else 0.toDouble))} 
-        .groupByKey 
-        .mapValues( value => org.apache.spark.util.StatCounter(value)) 
-        .take(5) 
-        .foreach(println) 
-
-output: 
-
-((2383,2465),(count: 4, mean: 0.883642, stdev: 0.086068, max: 0.933333, min: 0.734568)) 
-((2600,6786),(count: 4, mean: 2.388889, stdev: 0.559094, max: 3.148148, min: 1.574074)) 
-((2375,2606),(count: 6, mean: 0.693981, stdev: 0.305744, max: 1.125000, min: 0.453704)) 
-((6780,2475),(count: 2, mean: 0.827549, stdev: 0.150991, max: 0.978541, min: 0.676558)) 
-((2475,2606),(count: 7, mean: 3.975737, stdev: 3.356274, max: 9.628572, min: 0.472222))
-
-
-  
-scala> data.mapValues((_, 1)).reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2)).mapValues{ case (sum, count) => (1.0 * sum)/count}.collectAsMap()
-  
-
-*/
-     /*
-      *  ONLY VALUES FROM 0 to 9 POSSIBLE  
-      *
-    val model = new LogisticRegressionWithLBFGS()
-        .setNumClasses(10)
-        .run(training)
- 
- * 
- *     
- */
-    
- 
-/*    
-    
-// Compute raw scores on the test set.
-val scoreAndLabels = test.map { point =>
-  val score = model.predict(point.features)
-  (score, point.label)
-}
-
-// Get evaluation metrics.
-val metrics = new BinaryClassificationMetrics(scoreAndLabels)
-val auROC = metrics.areaUnderROC()
-
-println("Area under ROC = " + auROC)
-
-// Save and load model
-model.save(sc, "myModelPath")
-val sameModel = SVMModel.load(sc, "myModelPath")    
-    
-    
-  */   
-//    LinearRegressionWithSGD.train(training, 100);
-    //val model = ALS.train(training, 8, 10, 5);
-  /*
-   * 
-   * 
-   * 
-   * val ranks = List(8, 12)
-    val lambdas = List(1.0, 10.0)
-    val numIters = List(10, 20)
-    var bestModel: Option[MatrixFactorizationModel] = None
-    var bestValidationRmse = Double.MaxValue
-    var bestRank = 0
-    var bestLambda = -1.0
-    var bestNumIter = -1
-    for (rank <- ranks; lambda <- lambdas; numIter <- numIters) {
-      val model = ALS.train(training, rank, numIter, lambda)
-      val validationRmse = computeRmse(model, validation, numValidation)
-      println("RMSE (validation) = " + validationRmse + " for the model trained with rank = "
-        + rank + ", lambda = " + lambda + ", and numIter = " + numIter + ".")
-      if (validationRmse < bestValidationRmse) {
-        bestModel = Some(model)
-        bestValidationRmse = validationRmse
-        bestRank = rank
-        bestLambda = lambda
-        bestNumIter = numIter
-      }
+    if (args(0).equalsIgnoreCase("train")){
+      train()
+    }
+    else if (args(0).equalsIgnoreCase("evaluate")){
+      evaluate()
+    }
+    else{
+      printUsage()
     }
 
-    val testRmse = computeRmse(bestModel.get, test, numTest)
 
-    println("The best model was trained with rank = " + bestRank + " and lambda = " + bestLambda
-      + ", and numIter = " + bestNumIter + ", and its RMSE on the test set is " + testRmse + ".")
-   * 
-   * 
-   * 
-   * 
-   * 
-   */
-    
-    /*
-     * val input = dataFrame.map { line => val fields = line.split(",")
-     * ( "(" fields(0) ")" )}
-     */
-    
-    //sc.
-    
-    //val trainingData = ssc.textFileStream(args(0)).map(LabeledPoint.parse)
-    //val testData = ssc.textFileStream(args(1)).map(LabeledPoint.parse)
-
-    /*
-    val model = new StreamingLinearRegressionWithSGD()
-      .setInitialWeights(Vectors.zeros(args(3).toInt))
-
-    model.trainOn(trainingData)
-    model.predictOnValues(testData.map(lp => (lp.label, lp.features))).print()
-
-    ssc.start()
-    ssc.awaitTermination()
-*/
   }
+ 
   
 }
