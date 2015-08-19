@@ -153,6 +153,7 @@ object StockInferenceDemo {
   }
   
   def printUsage()={
+    // spark-submit --class io.pivotal.demo.StockInferenceDemo --master local[*] StockInference-1.0.jar
     println("Usage:  StockInferenceDemo <train|evaluate>")
   }
   
@@ -161,16 +162,13 @@ object StockInferenceDemo {
     if (args.length!=1){
       printUsage()
     }
-    
-    if (args(0).equalsIgnoreCase("train")){
+    else if (args(0).equalsIgnoreCase("train")){
       train()
     }
     else if (args(0).equalsIgnoreCase("evaluate")){
       evaluate()
     }
-    else{
-      printUsage()
-    }
+
 
 
   }
