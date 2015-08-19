@@ -63,7 +63,7 @@ object StockInferenceDemo {
     val df = sqlContext.gemfireOQL("SELECT t.entryTimestamp, t.close, t.ema, t.future_ema, t.rsi, t.ema_diff, t.low_diff, t.high_diff FROM /TechIndicators t");       
     df.registerTempTable("tech_indicators");
     
-    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema, rsi, ema_diff, low_diff, high_diff  from tech_indicators t order by entryTimestamp desc LIMIT 1000")
+    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema, rsi, ema_diff, low_diff, high_diff  from tech_indicators t order by entryTimestamp desc limit 10000")
     val rdd = result.rdd.cache()
         
     val dataset = rdd.map { line =>
