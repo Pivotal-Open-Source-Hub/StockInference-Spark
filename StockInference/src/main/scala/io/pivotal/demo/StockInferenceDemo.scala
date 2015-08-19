@@ -27,6 +27,8 @@ import org.apache.spark.mllib.classification.SVMWithSGD
  */
 object StockInferenceDemo {
 
+  val MODEL_PATH = "SparkModel"
+  
   val conf = new SparkConf().setMaster("local[*]").setAppName("StockInferenceMLDemo")  
   conf.set("spark.gemfire.locators", "localhost[10334]");
     
@@ -47,15 +49,25 @@ object StockInferenceDemo {
   
   def train() = {
     
-    val df = sqlContext.gemfireOQL("SELECT t.ema, t.future_ema, t.close, t.entryTimestamp FROM /TechIndicators t ");   
+    val df = sqlContext.gemfireOQL("SELECT t.entryTimestamp, t.close, t.ema, t.future_ema, t.rsi, t.ema_diff, t.low_diff, t.high_diff FROM /TechIndicators t");   
     
     df.registerTempTable("tech_indicators");
     
-    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema  from tech_indicators t order by entryTimestamp desc")
+    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema, rsi, ema_diff, low_diff, high_diff  from tech_indicators t order by entryTimestamp desc")
     val rdd = result.rdd.cache()
         
     val dataset = rdd.map { line =>
-      LabeledPoint(line.getString(3).toDouble, Vectors.dense(line.getString(1).toDouble, line.getString(2).toDouble))
+      // tech indicators 
+      val entryTimestamp = line.getLong(0)
+      val close = line.getString(1).toDouble
+      val ema = line.getString(2).toDouble
+      val future_ema = line.getString(3).toDouble
+      val rsi = line.getString(4).toDouble
+      val ema_diff = line.getString(5).toDouble
+      val low_diff = line.getString(6).toDouble
+      val high_diff = line.getString(7).toDouble      
+      
+      LabeledPoint(future_ema, Vectors.dense(close, ema, rsi))
     }.cache()      
     
                  
@@ -87,11 +99,15 @@ object StockInferenceDemo {
       val MSE = valuesAndPreds.map{case(v, f, p) => math.pow((v - p), 2)}.mean()
       println("training Mean Squared Error = " + MSE)    
     
+     model.save(sc, MODEL_PATH)
     
   }
   
   
   def evaluate() ={
+
+    val model = LinearRegressionModel.load(sc, "myModelPath")
+    //model.predict(toPredict)
     
   }
   
