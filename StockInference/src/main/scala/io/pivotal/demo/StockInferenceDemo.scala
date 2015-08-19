@@ -23,6 +23,8 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import scala.util.parsing.json.JSON
 import org.apache.spark.mllib.feature.StandardScalerModel
+import java.io.File
+
 
 
 
@@ -37,8 +39,11 @@ object StockInferenceDemo {
   
   val conf = new SparkConf().setMaster("local[*]").setAppName("StockInferenceMLDemo")  
   conf.set("spark.gemfire.locators", "localhost[10334]");
+  conf.set("spark.hadoop.validateOutputSpecs", "false")
+  conf.set("spark.files.overwrite","true")
     
   val sc = new SparkContext(conf);
+  
   val sqlContext = new SQLContext(sc);
   
   val numIterations = 2000  
@@ -58,7 +63,7 @@ object StockInferenceDemo {
     val df = sqlContext.gemfireOQL("SELECT t.entryTimestamp, t.close, t.ema, t.future_ema, t.rsi, t.ema_diff, t.low_diff, t.high_diff FROM /TechIndicators t");       
     df.registerTempTable("tech_indicators");
     
-    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema, rsi, ema_diff, low_diff, high_diff  from tech_indicators t order by entryTimestamp desc")
+    val result = sqlContext.sql("select entryTimestamp, close, ema, future_ema, rsi, ema_diff, low_diff, high_diff  from tech_indicators t order by entryTimestamp desc LIMIT 1000")
     val rdd = result.rdd.cache()
         
     val dataset = rdd.map { line =>
@@ -95,7 +100,10 @@ object StockInferenceDemo {
    
     
      val model = algorithm.run(trainingData)    
+     val modelFileDirectory = new File(MODEL_PATH)
      
+     if (modelFileDirectory.exists()) Utils.deleteRecursive(modelFileDirectory)
+    
      // save the trained model
      model.save(sc, MODEL_PATH)
      // save the scaler
@@ -153,7 +161,7 @@ object StockInferenceDemo {
   }
   
   def printUsage()={
-    // spark-submit --class io.pivotal.demo.StockInferenceDemo --master local[*] StockInference-1.0.jar
+    // spark-submit --class io.pivotal.demo.StockInferenceDemo --driver-memory 4G --executor-memory 2G --master local[*] StockInference-1.0.jar
     println("Usage:  StockInferenceDemo <train|evaluate>")
   }
   
