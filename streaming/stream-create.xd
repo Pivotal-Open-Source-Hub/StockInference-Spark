@@ -6,5 +6,6 @@ stream create yahoo_finance_source --definition "trigger --cron='* * 7-16 * * MO
 
 stream create r_process --definition "tap:stream:process_sink.transform > r-parsing: object-to-json | shell --command='Rscript streaming/tech_indicators.R' | formatting:  splitter --expression=#jsonPath(payload,'$') | object-to-json | gemfire-json-server --useLocator=true --host=locator --port=10334 --regionName=TechIndicators --keyExpression=payload.getField('entryTimestamp') " --deploy
 
-stream create http_source --definition "http --port=9000 | splitter --expression=#jsonPath(payload,'$') > queue:stocks" --deploy
+stream create --name prediction --definition "gemfire --regionName=TechIndicators --host=localhost --port=10334 --useLocator=true |shell --command='./evaluate.sh'" --deploy
+
 
