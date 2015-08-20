@@ -1,0 +1,3 @@
+admin config server http://localhost:9393
+
+stream all destroy --force
