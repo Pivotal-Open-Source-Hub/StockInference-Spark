@@ -84,7 +84,7 @@ gfsh> stop locator --name=locator1
 ```
 ## Final step
 
-* Before moving the to next lab run the script `data/startGeode.sh` and `data/setup.sh`
+* Before moving the to next lab run the script `startGeode.sh` under `$PROJECT/data`
 
 # References:
 
