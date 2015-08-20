@@ -81,7 +81,7 @@ object StockInferenceDemo {
       val high_diff = line.getString(7).toDouble      
       
       LabeledPoint(future_ema, Vectors.dense(close, ema, rsi))
-    }.cache()      
+    }.cache()
     
                  
     val scaler = new StandardScaler(withMean = true, withStd = true)
@@ -127,7 +127,7 @@ object StockInferenceDemo {
     
   }
   
-  
+  // Sample Input:  {"entryTimestamp":250214653814611,"ema":"245.511394357033","future_ema":"245.511394357033","close":"245.53","rsi":"46.2483326678155","ema_diff":"0.0186056429666053","high_diff":"9.03","low_diff":"-1.03"}
   def evaluate() ={
 
     // load the model
@@ -157,8 +157,11 @@ object StockInferenceDemo {
       val input =  scaler.transform(Vectors.dense(close, ema, rsi))
       val prediction = model.predict(input)
       
+     
+      
       // save on Gem using connector.
-      val pairRDD = sc.parallelize(List(
+      /*
+      val pairRDD = sc.parallelize(Array(
                                     ("entryTimestamp", entryTimestamp),
                                     ("close", close),
                                     ("ema", ema),
@@ -168,9 +171,24 @@ object StockInferenceDemo {
                                     ("high_diff", high_diff),
                                     ("predicted", prediction)
                                     ))
+      val outRdd = sc.parallelize(Array(jsonOutput))
+      outRdd.saveToGemfire("Predictions", item => (entryTimestamp, item))
                                     
-      pairRDD.saveToGemfire("Predictions")
+                                    * */
       
+      val jsonOutput = "{"+ 
+                        "entryTimestamp : "+entryTimestamp + ", "+
+                        "close : "+close + ", "+
+                        "ema : "+ema + ", "+
+                        "rsi : "+rsi + ", "+
+                        "ema_diff : "+ema_diff + ", "+
+                        "low_diff : "+low_diff + ", "+
+                        "high_diff : "+high_diff + ", "+
+                        "predicted : "+prediction+
+                        "}"
+                    
+      println(jsonOutput)
+      println("\r\n")
     }
     
    
