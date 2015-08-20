@@ -1,12 +1,19 @@
 package io.pivotal.demo
 
+import java.io.BufferedReader
+import java.io.File
 import java.io.InputStream
+import java.io.InputStreamReader
+
+import scala.util.parsing.json.JSON
+
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.feature.StandardScaler
+import org.apache.spark.mllib.feature.StandardScalerModel
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
@@ -18,12 +25,8 @@ import org.apache.spark.rdd._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.SQLContext
+
 import io.pivotal.gemfire.spark.connector._
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import scala.util.parsing.json.JSON
-import org.apache.spark.mllib.feature.StandardScalerModel
-import java.io.File
 
 
 
@@ -138,21 +141,35 @@ object StockInferenceDemo {
     while (true){
       val line = br.readLine()
       val json = JSON.parseFull(line)
+
+
+      val keyValueProps: Map[String,Any] = json.get.asInstanceOf[Map[String,Any]]
       
-      val keyValueProps: Map[String,Any] = json.asInstanceOf[Map[String,Any]]
-      
-      val close = keyValueProps.get("close").toString().toDouble
-      val ema = keyValueProps.get("ema").toString().toDouble
-      val rsi = keyValueProps.get("rsi").toString().toDouble
-      val ema_diff = keyValueProps.get("ema_diff").toString().toDouble
-      val low_diff = keyValueProps.get("low_diff").toString().toDouble
-      val high_diff = keyValueProps.get("high_diff").toString().toDouble      
+      val entryTimestamp = keyValueProps.get("entryTimestamp").get.asInstanceOf[Number].longValue()
+      val close = keyValueProps.get("close").get.asInstanceOf[String].toDouble
+      val ema = keyValueProps.get("ema").get.asInstanceOf[String].toDouble
+      val rsi = keyValueProps.get("rsi").get.asInstanceOf[String].toDouble
+      val ema_diff = keyValueProps.get("ema_diff").get.asInstanceOf[String].toDouble
+      val low_diff = keyValueProps.get("low_diff").get.asInstanceOf[String].toDouble
+      val high_diff = keyValueProps.get("high_diff").get.asInstanceOf[String].toDouble      
           
       
-      val input =  scaler.transform(Vectors.dense(close, ema, rsi, ema_diff, low_diff, high_diff))
+      val input =  scaler.transform(Vectors.dense(close, ema, rsi))
       val prediction = model.predict(input)
-
-      println(prediction)
+      
+      // save on Gem using connector.
+      val pairRDD = sc.parallelize(List(
+                                    ("entryTimestamp", entryTimestamp),
+                                    ("close", close),
+                                    ("ema", ema),
+                                    ("rsi", rsi),
+                                    ("ema_diff", ema_diff),
+                                    ("low_diff", low_diff),
+                                    ("high_diff", high_diff),
+                                    ("predicted", prediction)
+                                    ))
+                                    
+      pairRDD.saveToGemfire("Predictions")
       
     }
     

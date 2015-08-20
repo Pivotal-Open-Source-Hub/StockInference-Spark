@@ -1,1 +1,0 @@
-spark-submit --class io.pivotal.demo.StockInferenceDemo --jars ../lib/gemfire-spark-connector_2.10-0.5.0.jar,/Users/fmelo/geode/lib/gemfire-core-dependencies.jar --master local[*] build/libs/StockInference-1.0.jar evaluate
