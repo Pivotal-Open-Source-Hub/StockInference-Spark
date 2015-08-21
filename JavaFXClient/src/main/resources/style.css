@@ -1,0 +1,28 @@
+.chart {
+    -fx-padding: 10px;
+    -fx-background-image: url("geode-logo.png");
+    -fx-background-position: left bottom;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 200px;
+}
+
+.chart {
+    -fx-padding: 10px;
+}
+.chart-content {
+    -fx-padding: 30px;
+}
+.chart-legend {
+   -fx-background-color:  transparent;
+   -fx-padding: 3px;
+}
+
+.chart-legend-item-symbol{
+   -fx-background-radius: 5;
+}
+
+.chart-legend-item{
+    -fx-text-fill: #191970;
+}
+
+.default-color2.chart-series-line { -fx-stroke-dash-array: 0.1 5.0; }
