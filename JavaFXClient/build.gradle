@@ -16,7 +16,7 @@ dependencies {
 }
 
 task runfx(type:JavaExec) {
-    main = 'FinanceUI'
+    main = 'io.pivotal.demo.FinanceUI'
     systemProperties System.getProperties()
     classpath = sourceSets.main.runtimeClasspath
     minHeapSize = "1G"
