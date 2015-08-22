@@ -61,7 +61,7 @@ public class FinanceUI extends Application {
         return stocksRegion;
     }
 
-    private static final String fxTitle = "ApacheCon 2015 - SpringXD + Geode + R Demo";
+    private static final String fxTitle = "Stock Inference Demo - SpringXD + Geode + R + Spark MLLib";
 
     private static ClientCache cache = new ClientCacheFactory()
             .set("name", "GemFireClient"+ LocalDateTime.now())

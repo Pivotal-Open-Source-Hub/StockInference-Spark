@@ -21,5 +21,4 @@ task runfx(type:JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     minHeapSize = "1G"
     maxHeapSize = "1G"
-    jvmArgs = ["-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC"]
 }
