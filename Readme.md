@@ -1,5 +1,7 @@
 # Readme
 
+![Architecture](StockInference-arch.png)
+
 ## Summary
 
 Stock Inference engine using Spring XD, Apache Geode / GemFire and Spark ML Lib.
