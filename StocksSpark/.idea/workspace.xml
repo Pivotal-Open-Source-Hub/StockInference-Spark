@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="af561605-1b75-4b30-9de2-375846bb5714" name="Default" comment="" />
+    <list default="true" id="5c6707c7-3923-486a-b360-dcb96300df47" name="Default" comment="" />
     <ignored path="StocksSpark.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -75,9 +75,7 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -88,6 +86,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -184,9 +184,34 @@
     </configuration>
   </component>
   <component name="SbtLocalSettings">
+    <option name="availableProjects">
+      <map>
+        <entry>
+          <key>
+            <ExternalProjectPojo>
+              <option name="name" value="StocksSpark" />
+              <option name="path" value="$PROJECT_DIR$" />
+            </ExternalProjectPojo>
+          </key>
+          <value>
+            <list>
+              <ExternalProjectPojo>
+                <option name="name" value="stocksspark" />
+                <option name="path" value="$PROJECT_DIR$" />
+              </ExternalProjectPojo>
+              <ExternalProjectPojo>
+                <option name="name" value="stocksspark-build" />
+                <option name="path" value="$PROJECT_DIR$/project" />
+              </ExternalProjectPojo>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="modificationStamps">
       <map>
         <entry key="$USER_HOME$/Downloads/simple-math-api" value="1437418881000" />
+        <entry key="$PROJECT_DIR$" value="1440302309000" />
       </map>
     </option>
     <option name="externalProjectsViewState">
@@ -196,16 +221,16 @@
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="af561605-1b75-4b30-9de2-375846bb5714" name="Default" comment="" />
-      <created>1440303021432</created>
+      <changelist id="5c6707c7-3923-486a-b360-dcb96300df47" name="Default" comment="" />
+      <created>1440306238275</created>
       <option name="number" value="Default" />
-      <updated>1440303021432</updated>
-      <workItem from="1440303025677" duration="10000" />
+      <updated>1440306238275</updated>
+      <workItem from="1440351714126" duration="42000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10000" />
+    <option name="totallyTimeSpent" value="42000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="1173" extended-state="6" />

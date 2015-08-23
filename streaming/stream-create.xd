@@ -1,14 +1,13 @@
 admin config server http://localhost:9393
 
-stream create process_sink --definition "queue:stocks >  transform --script='file:streaming/transform.groovy' | object-to-json | gemfire-json-server --useLocator=true --host=localhost --port=10334 --regionName=Stocks --keyExpression=payload.getField('entryTimestamp')" --deploy
+stream create process_sink --definition "queue:stocks >  transform --script='file:./transform.groovy' | object-to-json | gemfire-json-server --useLocator=true --host=localhost --port=10334 --regionName=Stocks --keyExpression=payload.getField('entryTimestamp')" --deploy
 
 stream create yahoo_finance_source --definition "trigger --cron='* * 7-13 * * MON-FRI' | http-client --url='''https://query.yahooapis.com/v1/public/yql?q=select Symbol, LastTradeDate, LastTradeTime, LastTradePriceOnly, DaysHigh, DaysLow, Open from yahoo.finance.quotes where symbol in (\"TSLA\")&format=json&env=store://datatables.org/alltableswithkeys''' --httpMethod=GET | splitter --expression=#jsonPath(payload,'$.query.results.quote')  > queue:stocks" --deploy
 
 stream create http_source --definition "http --port=9000 | splitter --expression=#jsonPath(payload,'$') > queue:stocks" --deploy
 
-stream create --name r_process --definition "tap:stream:process_sink.transform > r-parsing: object-to-json | shell --command='Rscript streaming/tech_indicators.R' | formatting: splitter --expression=#jsonPath(payload,'$') | filter --expression=#jsonPath(payload,'$.rsi').indexOf('NaN')==-1 | object-to-json | gemfire-json-server --useLocator=true --host=locator --port=10334 --regionName=TechIndicators --keyExpression=payload.getField('entryTimestamp')" --deploy
+stream create --name r_process --definition "tap:stream:process_sink.transform > r-parsing: object-to-json | shell --command='Rscript ./tech_indicators.R' | formatting: splitter --expression=#jsonPath(payload,'$') | filter --expression=#jsonPath(payload,'$.rsi').indexOf('NaN')==-1 | object-to-json | gemfire-json-server --useLocator=true --host=locator --port=10334 --regionName=TechIndicators --keyExpression=payload.getField('entryTimestamp')" --deploy
 
-stream create --name prediction --definition "tap:stream:r_process.object-to-json > shell --command='./evaluate.sh' | gemfire-json-server --regionName=Predictions --host=localhost --port=10334 --useLocator=true --keyExpression=payload.getField('entryTimestamp')" --deploy
+stream create --name prediction --definition "tap:stream:r_process.object-to-json > shell --command='../evaluate.sh' | gemfire-json-server --regionName=Predictions --host=localhost --port=10334 --useLocator=true --keyExpression=payload.getField('entryTimestamp')" --deploy
 
-stream create --name training --definition "trigger --fixedDelay=300 | shell --command='./train.sh'" --deploy
-
+# stream create --name training --definition "trigger --fixedDelay=300 | shell --command='../train.sh'" --deploy

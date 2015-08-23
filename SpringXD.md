@@ -91,7 +91,8 @@ xd:>stream all destroy
 
 ## Final step
 
-* Before moving the to next lab run the script `stream-create.sh` from `$PROJECT/streaming/`
+* Before moving the to next lab run the script
+`stream-create.sh` from `$PROJECT/streaming/`
 * After the script execute, access the following from a browser:
   * http://192.168.56.10:9393/admin-ui/#/streams/definitions
   * http://192.168.56.10:9393/admin-ui/#/streams/create
