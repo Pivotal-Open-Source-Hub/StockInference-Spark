@@ -67,6 +67,8 @@ git clone http://github.com/apache/incubator-geode
 cd incubator-geode/
 git checkout develop
 ./gradlew build -Dskip.tests=true
+cd gemfire-spark-connector/
+sbt package publishM2 publishLocal
 ```
 
 ```
@@ -88,7 +90,6 @@ wget http://www.interior-dsgn.com/apache/spark/spark-1.3.1/spark-1.3.1-bin-hadoo
 tar -xzvpf spark-1.3.1-bin-hadoop2.6.tgz
 rm -rf spark-1.3.1-bin-hadoop2.6.tgz
 ```
-
 
 * Edit the `.bashrc` and `$PATH`
 

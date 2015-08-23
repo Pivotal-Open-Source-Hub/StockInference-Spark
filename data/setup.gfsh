@@ -3,7 +3,12 @@
 start locator --name=locator1 --J=-Dgemfire.http-service-port=7575
 start server --name=server1 --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8888
 create region --name=/Stocks --type=PARTITION
+create region --name=/TechIndicators --type=PARTITION
+create region --name=/Predictions --type=PARTITION
 
 import data --region=/Stocks --file=../Stocks.gfd --member=server1
+import data --region=/TechIndicators --file=../TechIndicators.gfd --member=server1
 
 describe region --name=/Stocks
+describe region --name=/TechIndicators
+describe region --name=/Predictions
