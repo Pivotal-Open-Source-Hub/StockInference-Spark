@@ -7,3 +7,4 @@ then
 fi
 
 gfsh run --file=setup.gfsh
+

@@ -61,12 +61,14 @@ sudo service ntp start
 * Cloning and building projects
 
 ```
-#Geode
+# Geode
 git clone github.com/apache/incubator-geode
 git clone http://github.com/apache/incubator-geode
 cd incubator-geode/
 git checkout develop
 ./gradlew build -Dskip.tests=true
+cd gemfire-spark-connector/
+sbt package publishM2 publishLocal
 ```
 
 ```
@@ -77,9 +79,16 @@ mvn clean package -Pspark-1.3 -Dhadoop.version=2.2.0 -Phadoop-2.2 -DskipTests
 ```
 
 ```
-#SpringXD
+# SpringXD
 wget http://repo.springsource.org/libs-snapshot-local/org/springframework/xd/spring-xd/2.0.0.BUILD-SNAPSHOT/spring-xd-2.0.0.BUILD-20150807.070129-71-dist.zip
 unzip spring-xd-2.0.0.BUILD-20150807.070129-71-dist.zip
+```
+
+```
+# Spark
+wget http://www.interior-dsgn.com/apache/spark/spark-1.3.1/spark-1.3.1-bin-hadoop2.6.tgz
+tar -xzvpf spark-1.3.1-bin-hadoop2.6.tgz
+rm -rf spark-1.3.1-bin-hadoop2.6.tgz
 ```
 
 * Edit the `.bashrc` and `$PATH`
@@ -90,8 +99,10 @@ Add the following lines at the end of `~/.bashrc`
 export GEODE_HOME=/home/vagrant/incubator-geode/gemfire-assembly/build/install/apache-geode
 export SPRINGXD_HOME=~/spring-xd-2.0.0.BUILD-SNAPSHOT
 export ZEPPELIN_HOME=~/incubator-zeppelin
+export PROJECT=/home/vagrant/StockInference-Spark
+export SPARK_HOME=/home/vagrant/spark-1.3.1-bin-hadoop2.6
 
-export PATH=$PATH:$GEODE_HOME/bin:$SPRINGXD_HOME/xd/bin:$SPRINGXD_HOME/shell/bin:$ZEPPELIN_HOME/bin
+export PATH=$PATH:$GEODE_HOME/bin:$SPRINGXD_HOME/xd/bin:$SPRINGXD_HOME/shell/bin:$ZEPPELIN_HOME/bin:$SPARK_HOME/bin
 ```
 
 * Pulling Docker image for Geode
