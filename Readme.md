@@ -39,7 +39,7 @@ If you're not familiar with Geode/GemFire, Spring XD, Spark ML and Apache Zeppel
 
 If you have received a pre-built Virtual Machine, start the VM and access its console using ssh as below:
 
-----
+```
 $ vagrant up
 
 Bringing machine 'default' up with 'virtualbox' provider...
@@ -90,7 +90,7 @@ _____________________________________________________________________________
 
 [vagrant@stocks-vm, load: 0.00] (Mon Aug 24 - 01:13:10)
 ~ $
-----
+```
 
 
 ### Creating the Geode / GemFire regions to store 
@@ -102,30 +102,29 @@ The demo uses three different regions for storing data:
 
 To create the regions, execute the script <SCRIPT_PATH> as below:
 
-----
+```
 $ BLA BLA BLA
 
-----
+```
 
 Import some existing data in order to pre-train our model. We'll re-train it later with the data being ingested.
 
----
+```
 $ gfsh import bla bla bla bla bla
 
----
+```
 
 ### Training the Machine Learning model
 
 Before executing the Machine Learning model on Spark, we need to train it with existing data.
 For doing that, run the script below, which involkes the [scala class](StockInference/src/main/scala/io/pivotal/demo/StockInferenceDemo.scala) 
 
----
+```
 $ ./train.sh
 (...)
+```
 
 
-
----
 
 
 ### Creating the Spring XD streams
