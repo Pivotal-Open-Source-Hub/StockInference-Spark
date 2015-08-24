@@ -96,9 +96,9 @@ _____________________________________________________________________________
 ### Creating the Geode / GemFire regions to store 
 
 The demo uses three different regions for storing data:
-. /Stocks - Stores raw stock trading data, as acquired from [Yahoo Finance YQL](finance.yahoo.com) or using the simulator (which randomly replays data previously ingested from the same Yahoo Finance YQL)
-. /TechIndicators - Stores technical indicators, which will be used as inputs / features to the Machine Learning model. The indicators are calculated by the [R script](streaming/tech_indicators.R), which is involked by Spring XD.
-. /Predictions - Stores the predicted data, as it gets calculated by the [Spark MLLib model](StockInference/src/main/scala/io/pivotal/demo/StockInferenceDemo.scala).
+* /Stocks - Stores raw stock trading data, as acquired from [Yahoo Finance YQL](finance.yahoo.com) or using the simulator (which randomly replays data previously ingested from the same Yahoo Finance YQL)
+* /TechIndicators - Stores technical indicators, which will be used as inputs / features to the Machine Learning model. The indicators are calculated by the [R script](streaming/tech_indicators.R), which is involked by Spring XD.
+* /Predictions - Stores the predicted data, as it gets calculated by the [Spark MLLib model](StockInference/src/main/scala/io/pivotal/demo/StockInferenceDemo.scala).
 
 To create the regions, execute the script <SCRIPT_PATH> as below:
 
