@@ -28,10 +28,10 @@ if you prefer to create a demo VM yourself, the instructions are [here](VM.md)
 
 If you're not familiar with Geode/GemFire, Spring XD, Spark ML and Apache Zeppelin, please first follow the product specific labs below:
 
-* [Apache Geode Lab](Geode.md)
-* [Apache SpringXD Lab](SpringXD.md)
-* [Apache Spark ML](SparkML.md)
-* [Apache Zeppelin Lab](Zeppelin.md)
+* [First steps with Apache Geode](Geode.md)
+* [First steps with SpringXD Lab](SpringXD.md)
+* [First steps with Spark ML](SparkML.md)
+* [First steps with Apache Zeppelin](Zeppelin.md)
 
 
 
