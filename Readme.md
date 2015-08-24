@@ -104,7 +104,7 @@ To create the regions, execute the script `startGeode.sh` under the `data` folde
 
 ```
 $ cd project/StockInference-Spark/data
-$ ./startGeode
+$ ./startGeode.sh
 
 1. Executing - start locator --name=locator1 --J=-Dgemfire.http-service-port=7575
 
@@ -371,8 +371,8 @@ $ gfsh
 /______/_/      /______/_/    /_/    v1.0.0-incubating-SNAPSHOT
 
 Monitor and Manage GemFire
-gfsh> connect
-Connecting to Locator at [host=localhost, port=10334] ..
+gfsh> connect --locator=192.168.56.10[10334]
+Connecting to Locator at [host=192.168.56.10, port=10334] ..
 Connecting to Manager at [host=192.168.56.10, port=1099] ..
 Successfully connected to: [host=192.168.56.10, port=1099]
 
