@@ -4,6 +4,7 @@ Geode is a data management platform that provides real-time, consistent access t
 
 ## Build
 
+
 * Obtaining the source code
 
 ```
@@ -17,6 +18,8 @@ $ cd incubator-geode
 $ git checkout develop
 $ ./gradlew build -Dskip.tests=true
 ```
+
+ps: Step not necessary if you're using the pre-built VM.
 
 ## Starting a Geode cluster
 
@@ -82,11 +85,6 @@ gfsh> stop server --name=server1
 gfsh> stop locator --name=locator1
 
 ```
-## Final step
-
-* Before moving the to next lab run the script `startGeode.sh` under `$PROJECT/data`
-* Access the GemFire REST at http://192.168.56.10:8888/gemfire-api/docs/index.html
-* Execute the `deployFunctionVM.sh` to deploy functions for the Spark Connector.
 
 # References:
 
