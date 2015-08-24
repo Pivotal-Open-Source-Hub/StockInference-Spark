@@ -109,6 +109,28 @@ $ more /etc/hosts
 ::1             localhost
 ```
 
+you'll also need to export the GEODE_HOME variable, pointing to *your* Apache Geode installation 
+
+```
+$ export GEODE_HOME=/home/pivotal/apache-geode
+
+```
+To verify if you have the right directory, you should be able to launch gfsh by typing  ``$GEODE_HOME/bin/gfsh``
+
+```
+$ $GEODE_HOME/bin/gfsh
+    _________________________     __
+   / _____/ ______/ ______/ /____/ /
+  / /  __/ /___  /_____  / _____  /
+ / /__/ / ____/  _____/ / /    / /
+/______/_/      /______/_/    /_/    v1.0.0-incubating-SNAPSHOT
+
+Monitor and Manage GemFire
+gfsh>exit
+Exiting...
+$
+```
+
 
 ### Creating the Geode / GemFire regions 
 
