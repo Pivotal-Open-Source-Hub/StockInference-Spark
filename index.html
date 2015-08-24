@@ -31,7 +31,7 @@
           <h1>
 <a id="stock-prediction-with-machine-learning" class="anchor" href="#stock-prediction-with-machine-learning" aria-hidden="true"><span class="octicon octicon-link"></span></a>Stock Prediction with Machine Learning</h1>
 
-<p><img src="StockInference-arch.png" alt="Architecture"></p>
+<p><img src="https://raw.githubusercontent.com/Pivotal-Open-Source-Hub/StockInference-Spark/master/StockInference-arch.png" alt="Architecture"></p>
 
 <h2>
 <a id="summary" class="anchor" href="#summary" aria-hidden="true"><span class="octicon octicon-link"></span></a>Summary</h2>
@@ -67,10 +67,10 @@
 <p>If you're not familiar with Geode/GemFire, Spring XD, Spark ML and Apache Zeppelin, please first follow the product specific labs below:</p>
 
 <ul>
-<li><a href="Geode.md">First steps with Apache Geode</a></li>
-<li><a href="SpringXD.md">First steps with SpringXD Lab</a></li>
-<li><a href="SparkML.md">First steps with Spark ML</a></li>
-<li><a href="Zeppelin.md">First steps with Apache Zeppelin</a></li>
+<li><a href="https://github.com/Pivotal-Open-Source-Hub/StockInference-Spark/blob/master/Geode.md">First steps with Apache Geode</a></li>
+<li><a href="https://github.com/Pivotal-Open-Source-Hub/StockInference-Spark/blob/master/SpringXD.md">First steps with SpringXD Lab</a></li>
+<li><a href="https://github.com/Pivotal-Open-Source-Hub/StockInference-Spark/blob/master/SparkML.md">First steps with Spark ML</a></li>
+<li><a href="https://github.com/Pivotal-Open-Source-Hub/StockInference-Spark/blob/master/Zeppelin.md">First steps with Apache Zeppelin</a></li>
 </ul>
 
 <h3>
@@ -320,10 +320,10 @@ stream create --name r_process --definition "tap:stream:process_sink.transform &
 pression=#jsonPath(payload,'$') | filter --expression=#jsonPath(payload,'$.rsi').indexOf('NaN')==-1 | object-to-json | gemfire-json-server --useLocator=true --host=locator --port=103
 34 --regionName=TechIndicators --keyExpression=payload.getField('entryTimestamp')" --deploy
 
-stream create --name prediction --definition "tap:stream:r_process.object-to-json &gt; shell --command='../evaluate.sh' | gemfire-json-server --regionName=Predictions --host=localhost -
+stream create --name prediction --definition "tap:stream:r_process.object-to-json &gt; shell --command='./evaluate.sh' | gemfire-json-server --regionName=Predictions --host=localhost -
 -port=10334 --useLocator=true --keyExpression=payload.getField('entryTimestamp')" --deploy
 
-# stream create --name training --definition "trigger --fixedDelay=300 | shell --command='../train.sh'" --deploy
+# stream create --name training --definition "trigger --fixedDelay=300 | shell --command='./train.sh'" --deploy
 </code></pre>
 
 <p>Please note the <code>yahoo_finance_source</code> stream has a cron based on PDT timezone (7-13 MON-FRI = normal Wall Street operating times). If your environment has another timezone set, you'll need to adjust it accordingly.</p>
@@ -516,7 +516,7 @@ If you're using the provided VM, this should be the VM IP (192.168.56.10).. othe
 
 <p>This should open the Java based UI. Now run the simulator again, and watch the predicted and real values being plotted in real-time!</p>
 
-<p><img src="gui.png" alt="GUI"></p>
+<p><img src="https://raw.githubusercontent.com/Pivotal-Open-Source-Hub/StockInference-Spark/master/gui.png" alt="GUI"></p>
         </section>
 
         <aside id="sidebar">
