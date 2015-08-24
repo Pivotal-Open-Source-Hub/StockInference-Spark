@@ -14,7 +14,7 @@ while(TRUE) {
   streamRow <- fromJSON(line)
   
 
-  historical <- getURL(paste0('http://geode-server:8080/gemfire-api/v1/queries/adhoc?q=SELECT%20DISTINCT%20*%20FROM%20/Stocks%20s%20WHERE%20s.entryTimestamp%20<%20',streamRow$entryTimestamp,'l%20ORDER%20BY%20s.entryTimestamp%20desc%20LIMIT%20100'))
+  historical <- getURL(paste0('http://localhost:8888/gemfire-api/v1/queries/adhoc?q=SELECT%20DISTINCT%20*%20FROM%20/Stocks%20s%20WHERE%20s.entryTimestamp%20<%20',streamRow$entryTimestamp,'l%20ORDER%20BY%20s.entryTimestamp%20desc%20LIMIT%20100'))
 
   
   historicalSet <- fromJSON(historical)

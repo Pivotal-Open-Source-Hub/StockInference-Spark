@@ -2,15 +2,15 @@
 
 Spring XD is a unified, distributed, and extensible system for data ingestion, real time analytics, batch processing, and data export. The project's goal is to simplify the development of big data applications.
 
-Installation directory: spring-xd-2.0.0.BUILD-SNAPSHOT/
+## Starting a single-node instance
 
-## Starting an single-node instance
 
 ```
-$ xd-singlenode
+$ cd $PROJECT/streaming
+$ ./startSpringXD.sh
 ```
 
-*Make the process run in the background (nohup  &) or open a new terminal for the next commands.*
+*If you are already familiar with SpringXD, the xd-singlenode script is on the path as well.*
 
 ## Using `xd-shell` (SpringXD CLI)
 
@@ -91,7 +91,8 @@ xd:>stream all destroy
 
 ## Final step
 
-* Before moving the to next lab run the script `stream-create.sh` from `$PROJECT/streaming/`
+* Before moving the to next lab run the script
+`stream-create.sh` from `$PROJECT/streaming/`
 * After the script execute, access the following from a browser:
   * http://192.168.56.10:9393/admin-ui/#/streams/definitions
   * http://192.168.56.10:9393/admin-ui/#/streams/create
