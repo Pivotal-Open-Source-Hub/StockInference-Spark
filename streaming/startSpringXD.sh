@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if pgrep -f "xd-singlenode" -l > /dev/null
-then
-	echo "SpringXD already RUNNING - PID:" `pgrep -f "xd-singlenode"`
-	exit
-fi
 
 nohup xd-singlenode &
 

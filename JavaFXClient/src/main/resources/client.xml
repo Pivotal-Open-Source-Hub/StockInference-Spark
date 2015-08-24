@@ -5,7 +5,7 @@
 
 <client-cache>
     <pool name="client" subscription-enabled="true">
-        <locator host="192.168.56.10" port="10334" />
+        <locator host="geode-server" port="10334" />
     </pool>
 
     <region name="Stocks">

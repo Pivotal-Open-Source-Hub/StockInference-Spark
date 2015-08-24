@@ -1,7 +1,10 @@
 # GemFire/Geode setup
 
-start locator --name=locator1 --J=-Dgemfire.http-service-port=7575 --bind-address=192.168.56.10
-start server --name=server1 --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8888 --bind-address=192.168.56.10
+start locator --name=locator1 --J=-Dgemfire.http-service-port=7575 --bind-address=geode-server
+start server --name=server1 --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8888 --bind-address=geode-server --hostname-for-clients=geode-server --locators=geode-server[10334]
+
+connect --locator=geode-server[10334]
+
 create region --name=/Stocks --type=PARTITION
 create region --name=/TechIndicators --type=PARTITION
 create region --name=/Predictions --type=PARTITION

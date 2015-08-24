@@ -1,3 +1,3 @@
-admin config server http://localhost:9393
+admin config server http://xd-server:9393
 
 stream all destroy --force
