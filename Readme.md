@@ -1,4 +1,4 @@
-# Readme
+# Stock Prediction with Machine Learning 
 
 ![Architecture](StockInference-arch.png)
 
@@ -35,7 +35,7 @@ If you're not familiar with Geode/GemFire, Spring XD, Spark ML and Apache Zeppel
 
 
 
-### Starting the Demo environment
+### Starting the demo environment
 
 If you have received a pre-built Virtual Machine, start the VM and access its console using ssh as below:
 
