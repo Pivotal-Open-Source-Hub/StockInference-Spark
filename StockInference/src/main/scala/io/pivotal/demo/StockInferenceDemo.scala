@@ -41,7 +41,7 @@ object StockInferenceDemo {
   val SCALER_FILE = MODEL_PATH+"/scaler.obj"
   
   val conf = new SparkConf().setMaster("local[*]").setAppName("StockInferenceMLDemo")  
-  conf.set("spark.gemfire.locators", "192.168.56.10[10334]");
+  conf.set("spark.gemfire.locators", "geode-server[10334]");
   conf.set("spark.hadoop.validateOutputSpecs", "false")
   conf.set("spark.files.overwrite","true")
     
