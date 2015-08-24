@@ -8,6 +8,6 @@ stream create http_source --definition "http --port=9000 | splitter --expression
 
 stream create --name r_process --definition "tap:stream:process_sink.transform > r-parsing: object-to-json | shell --command='Rscript ./tech_indicators.R' | formatting: splitter --expression=#jsonPath(payload,'$') | filter --expression=#jsonPath(payload,'$.rsi').indexOf('NaN')==-1 | object-to-json | gemfire-json-server --useLocator=true --host=locator --port=10334 --regionName=TechIndicators --keyExpression=payload.getField('entryTimestamp')" --deploy
 
-stream create --name prediction --definition "tap:stream:r_process.object-to-json > shell --command='../evaluate.sh' | gemfire-json-server --regionName=Predictions --host=localhost --port=10334 --useLocator=true --keyExpression=payload.getField('entryTimestamp')" --deploy
+stream create --name prediction --definition "tap:stream:r_process.object-to-json > shell --command='./evaluate.sh' | gemfire-json-server --regionName=Predictions --host=localhost --port=10334 --useLocator=true --keyExpression=payload.getField('entryTimestamp')" --deploy
 
-# stream create --name training --definition "trigger --fixedDelay=300 | shell --command='../train.sh'" --deploy
+# stream create --name training --definition "trigger --fixedDelay=300 | shell --command='./train.sh'" --deploy

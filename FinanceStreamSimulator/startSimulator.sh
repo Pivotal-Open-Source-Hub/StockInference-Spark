@@ -1,5 +1,5 @@
 #!/bin/bash
 
-gradle -p run
+gradle run
 
 
