@@ -12,7 +12,7 @@ This VM has all the required software to run the lab, including:
 
 ## Requirements
 
-* Vagrant
+* Vagrant 1.6+
 * VirtualBox
 
 # Instructions
@@ -104,10 +104,28 @@ export SPARK_HOME=/home/vagrant/spark-1.3.1-bin-hadoop2.6
 
 export PATH=$PATH:$GEODE_HOME/bin:$SPRINGXD_HOME/xd/bin:$SPRINGXD_HOME/shell/bin:$ZEPPELIN_HOME/bin:$SPARK_HOME/bin
 ```
-
 * Pulling Docker image for Geode
 
 ```
 sudo /etc/init.d/docker start
 sudo docker pull apachegeode/geode:unstable
+```
+
+## Troubleshooting
+
+* If the VM doesn't start due to lack of resources, tune the **--memory** and **--cpus** in the following section of the `Vagrantfile`
+
+```
+config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+    vb.customize ["modifyvm", :id, "--cpus", "4"]
+    vb.customize ["modifyvm", :id, "--memory", "8192"]
+  end
+```
+
+* If Vagrant doesn't complete to start the VM, try to force a stop with `halt` and then start:
+
+```
+$ vagrant halt
+$ vagrant up
 ```
