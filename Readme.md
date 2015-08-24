@@ -25,5 +25,5 @@ If you want use our pre-packaged Vagrant VM:
 * [Vagrant VM](VM.md)
 * [Apache Geode Lab](Geode.md)
 * [Apache SpringXD Lab](SpringXD.md)
-* [Apache Zeppelin Lab](Zeppelin.md)
 * [Apache Spark ML](SparkML.md)
+* [Apache Zeppelin Lab](Zeppelin.md)
