@@ -93,7 +93,7 @@ _____________________________________________________________________________
 ```
 
 
-### Creating the Geode / GemFire regions to store 
+### Creating the Geode / GemFire regions 
 
 The demo uses three different regions for storing data:
 * /Stocks - Stores raw stock trading data, as acquired from [Yahoo Finance YQL](finance.yahoo.com) or using the simulator (which randomly replays data previously ingested from the same Yahoo Finance YQL)
@@ -316,3 +316,167 @@ When you're not on US stock market open hours, we can use the simulator to rando
 
 Start the simulator from the ``FinanceStreamSimulator`` folder:
 
+```
+~/project/StockInference-Spark/FinanceStreamSimulator $ ./startSimulator.sh
+:compileJava UP-TO-DATE
+:processResources UP-TO-DATE
+:classes UP-TO-DATE
+:findMainClass
+:run
+  /$$$$$$$$ /$$            /$$$$$$   /$$                      /$$$$$$  /$$                         /$$             /$$
+| $$_____/|__/           /$$__  $$ | $$                     /$$__  $$|__/                        | $$            | $$
+| $$       /$$ /$$$$$$$ | $$  \__//$$$$$$    /$$$$$$       | $$  \__/ /$$ /$$$$$$/$$$$  /$$   /$$| $$  /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$
+| $$$$$   | $$| $$__  $$|  $$$$$$|_  $$_/   /$$__  $$      |  $$$$$$ | $$| $$_  $$_  $$| $$  | $$| $$ |____  $$|_  $$_/   /$$__  $$ /$$__  $$
+| $$__/   | $$| $$  \ $$ \____  $$ | $$    | $$  \__/       \____  $$| $$| $$ \ $$ \ $$| $$  | $$| $$  /$$$$$$$  | $$    | $$  \ $$| $$  \__/
+| $$      | $$| $$  | $$ /$$  \ $$ | $$ /$$| $$             /$$  \ $$| $$| $$ | $$ | $$| $$  | $$| $$ /$$__  $$  | $$ /$$| $$  | $$| $$
+| $$      | $$| $$  | $$|  $$$$$$/ |  $$$$/| $$            |  $$$$$$/| $$| $$ | $$ | $$|  $$$$$$/| $$|  $$$$$$$  |  $$$$/|  $$$$$$/| $$
+|__/      |__/|__/  |__/ \______/   \___/  |__/             \______/ |__/|__/ |__/ |__/ \______/ |__/ \_______/   \___/   \______/ |__/
+
+
+Finance Stream Simulator
+
+Usage:  java -jar FinanceStreamSimulator.jar [--serverUrl=<URL>] [--numberOfMessages=<messages>] [--basePrice=<price>] [--scale=<scale>]
+
+
+2015-08-24 04:16:38.055  INFO 9954 --- [           main] io.pivotal.demo.SimulatorApp             : Starting SimulatorApp on stocks-vm with PID 9954 (/home/vagrant/project/StockInference-Spark/FinanceStreamSimulator/build/classes/main started by vagrant in /home/vagrant/project/StockInference-Spark/FinanceStreamSimulator)
+2015-08-24 04:16:38.096  INFO 9954 --- [           main] s.c.a.AnnotationConfigApplicationContext : Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@51e2adc7: startup date [Mon Aug 24 04:16:38 UTC 2015]; root of context hierarchy
+2015-08-24 04:16:38.847  INFO 9954 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Registering beans for JMX exposure on startup
+2015-08-24 04:16:38.852  INFO 9954 --- [           main] io.pivotal.demo.ReplaySimulator          : --------------------------------------
+2015-08-24 04:16:38.853  INFO 9954 --- [           main] io.pivotal.demo.ReplaySimulator          : >>> Geode rest endpoint: http://localhost:8888
+2015-08-24 04:16:38.853  INFO 9954 --- [           main] io.pivotal.demo.ReplaySimulator          : >>> Endpoint URL: http://localhost:9000
+2015-08-24 04:16:38.853  INFO 9954 --- [           main] io.pivotal.demo.ReplaySimulator          : >>> Number of messages: 500
+2015-08-24 04:16:38.854  INFO 9954 --- [           main] io.pivotal.demo.ReplaySimulator          : >>> Symbol: TSLA
+2015-08-24 04:16:38.854  INFO 9954 --- [           main] io.pivotal.demo.ReplaySimulator          : --------------------------------------
+2015-08-24 04:16:39.240  INFO 9954 --- [           main] io.pivotal.demo.ReplaySimulator          : >>> Posting 500 messages 2015-08-24 04:21:20.768  INFO 10187 --- [           main] io.pivotal.demo.ReplaySimulator          : done
+2015-08-24 04:21:20.769  INFO 10187 --- [           main] io.pivotal.demo.SimulatorApp             : Started SimulatorApp in 154.355 seconds (JVM running for 154.685)
+2015-08-24 04:21:20.772  INFO 10187 --- [       Thread-1] s.c.a.AnnotationConfigApplicationContext : Closing org.springframework.context.annotation.AnnotationConfigApplicationContext@51e2adc7: startup date [Mon Aug 24 04:18:46 UTC 2015]; root of context hierarchy
+2015-08-24 04:21:20.773  INFO 10187 --- [       Thread-1] o.s.j.e.a.AnnotationMBeanExporter        : Unregistering JMX-exposed beans on shutdown
+
+BUILD SUCCESSFUL
+
+Total time: 2 mins 38.003 secs
+
+```
+
+### Verifying the calculated predictions 
+
+Use GFSH to connect to Geode/GemFire and verify the Predictions region:
+
+```
+$ gfsh
+    _________________________     __
+   / _____/ ______/ ______/ /____/ /
+  / /  __/ /___  /_____  / _____  /
+ / /__/ / ____/  _____/ / /    / /
+/______/_/      /______/_/    /_/    v1.0.0-incubating-SNAPSHOT
+
+Monitor and Manage GemFire
+gfsh> connect
+Connecting to Locator at [host=localhost, port=10334] ..
+Connecting to Manager at [host=192.168.56.10, port=1099] ..
+Successfully connected to: [host=192.168.56.10, port=1099]
+
+gfsh>describe region --name=/Predictions
+..........................................................
+Name            : Predictions
+Data Policy     : partition
+Hosting Members : server1
+
+Non-Default Attributes Shared By Hosting Members
+
+ Type  |    Name     | Value
+------ | ----------- | ---------
+Region | size        | 500
+       | data-policy | PARTITION
+
+```
+
+Now check some of the data:
+
+```
+gfsh>query --query="select entryTimestamp, ema, predicted from /Predictions order by entryTimestamp desc"
+
+Result     : true
+startCount : 0
+endCount   : 20
+Rows       : 548
+
+entryTimestamp |       ema        | predicted
+-------------- | ---------------- | ------------------
+13353015247329 | 243.655200392179 | 244.36126012453593
+13352705066802 | 243.304022701552 | 244.4679070450193
+13352402037135 | 242.724916646386 | 243.45581253816388
+13352098169940 | 242.36154257993  | 243.70099081921597
+13351795573541 | 241.695218711637 | 238.62424186981085
+13351492002111 | 243.225267310611 | 244.00046225381527
+13351189015085 | 242.839771151012 | 242.8768374516088
+13350884494287 | 242.82194251399  | 240.2610870520309
+13350573308646 | 244.09792973193  | 246.75466201448913
+13350268197871 | 242.775025233505 | 240.11608047958853
+13349964892135 | 244.100586370887 | 244.7387182131781
+13349658440285 | 243.782938889622 | 243.34998938877558
+13349354287691 | 243.999147524282 | 243.42056117407438
+13349043851852 | 244.287846987753 | 245.56848677338888
+13348734159759 | 243.650035229633 | 243.8471030722387
+13348413390251 | 243.552265288641 | 244.84555218518653
+13348104692176 | 242.908324243737 | 244.77470961584862
+13347800579225 | 241.979062973214 | 238.83273528756686
+13347496878110 | 243.547743641872 | 243.66095598690484
+13347193662872 | 243.491708904    | 242.94782444029957
+13346886510828 | 243.763199762867 | 243.0980329260479
+(...)
+```
+You can check how accurate the predicted value is by comparing the __ema__ and __predicted__ columns
+
+### EXTRA: Checking the predictions in real-time using the GUI
+
+ps: If you're using the provided VM, you'll need to clone this repository in your local environment to use the Java Rich UI.
+
+From the directory ``JavaFXClient``, edit the file ``src/main/resources/client.xml`` to point the GemFire/Geode native client to where you're running the servers.
+If you're using the provided VM, this should be the VM IP (192.168.56.10).. otherwise, if you're running it local just use localhost.
+
+
+```
+JavaFXClient $ more src/main/resources/client.xml
+<?xml version="1.0"?>
+<!DOCTYPE client-cache PUBLIC
+        "-//GemStone Systems, Inc.//GemFire Declarative Caching 8.0//EN"
+        "http://www.gemstone.com/dtd/cache8_0.dtd">
+
+<client-cache>
+    <pool name="client" subscription-enabled="true">
+        <locator host="192.168.56.10" port="10334" /> <!-- CHANGE THE IP ON THIS LINE TO POINT TO GEODE/GEMFIRE -->
+    </pool>
+
+    <region name="Stocks">
+        <region-attributes refid="PROXY">
+            <cache-listener>
+                <class-name>io.pivotal.demo.StockListener</class-name>
+            </cache-listener>
+        </region-attributes>
+    </region>
+
+    <region name="Predictions">
+        <region-attributes refid="PROXY">
+            <cache-listener>
+                <class-name>io.pivotal.demo.PredictionListener</class-name>
+            </cache-listener>
+        </region-attributes>
+    </region>
+</client-cache>
+
+```
+Start the GUI:
+
+```
+JavaFXClient $ ./gradlew run
+:compileJava UP-TO-DATE
+:processResources UP-TO-DATE
+:classes UP-TO-DATE
+:runfx
+(...)
+
+```
+This should open the Java based UI. Now run the simulator again, and watch the predicted and real values being plotted in real-time!
+
+![GUI](gui.png)
