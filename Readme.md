@@ -16,7 +16,7 @@ Stock Inference engine using Spring XD, Apache Geode / GemFire and Spark ML Lib.
 * 8GB+ RAM (recommended)
 * Linux or OSX (Windows should be OK but instructions assume *nix shell)
 
-* Pre-packaged VM for download: http://bit.ly/1F7uBxT
+* **Pre-packaged VM for download**: http://bit.ly/1F7uBxT
 
 PS: If you are were given a pre-packaged Vagrant VM for this lab you'll only need:
 
