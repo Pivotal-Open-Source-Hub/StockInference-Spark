@@ -28,11 +28,7 @@ $ vagrant ssh
 [vagrant@stocks-vm, load: 0.01]
 ~ $
 ```
-* Run the test script
 
-```
-$ ?
-```
 * Stopping the VM
 
 ```
@@ -109,6 +105,14 @@ export PATH=$PATH:$GEODE_HOME/bin:$SPRINGXD_HOME/xd/bin:$SPRINGXD_HOME/shell/bin
 ```
 sudo /etc/init.d/docker start
 sudo docker pull apachegeode/geode:unstable
+```
+
+* Adding entries to hosts file:
+
+Add the following entry to the `/etc/hosts`:
+
+```
+127.0.1.1 stocks-vm geode-server xd-server
 ```
 
 ## Troubleshooting
