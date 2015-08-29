@@ -112,7 +112,7 @@ sudo docker pull apachegeode/geode:unstable
 Add the following entry to the `/etc/hosts`:
 
 ```
-127.0.1.1 stocks-vm geode-server xd-server
+127.0.0.1 stocks-vm geode-server xd-server
 ```
 
 ## Troubleshooting
