@@ -4,7 +4,7 @@
 #################################################
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "package.box"
+  config.vm.box = "stocksvm.box"
 
   config.ssh.forward_agent = true
   config.ssh.insert_key = false
