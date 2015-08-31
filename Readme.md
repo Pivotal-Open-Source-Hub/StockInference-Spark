@@ -16,7 +16,7 @@ Stock Inference engine using Spring XD, Apache Geode / GemFire and Spark ML Lib.
 * 8GB+ RAM (recommended)
 * Linux or OSX (Windows should be OK but instructions assume *nix shell)
 
-* **Pre-packaged VM for download**: http://bit.ly/1F7uBxT
+* **Pre-packaged VM for download**: http://bit.ly/1F7uBxT  (vagrant/vagrant)
 
 PS: If you are were given a pre-packaged Vagrant VM for this lab you'll only need:
 
@@ -108,6 +108,55 @@ $ more /etc/hosts
 127.0.0.1       localhost geode-server xd-server
 255.255.255.255 broadcasthost
 ::1             localhost
+```
+If you are using the VM, modify the /etc/hosts file to associate the server names with the external IP your VM is presenting.  It will be the address that begins with 192.168.x.x
+```
+$ ifconfig
+eth0      Link encap:Ethernet  HWaddr 08:00:27:6a:32:e8
+          inet addr:10.0.2.15  Bcast:10.0.2.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:29266 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:25649 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:10570362 (10.5 MB)  TX bytes:2911832 (2.9 MB)
+
+eth1      Link encap:Ethernet  HWaddr 08:00:27:ae:57:0d
+          inet addr:192.168.56.10  Bcast:192.168.56.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:7339 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:9164 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:585718 (585.7 KB)  TX bytes:10272756 (10.2 MB)
+
+```
+The /etc/hosts file changes:
+```
+$ more /etc/hosts
+#127.0.0.1 localhost stocks-vm geode-server xd-server
+127.0.0.1 localhost
+192.168.56.10 stocks-vm geode-server xd-server
+```
+Also, if you are running within the VM and would like to use an external client you need to modify the setup.gfsh file for that configuration by removing the bind-address entries, and changing the hostname-for-clients address to the external IP of your VM.
+```
+$ more ~/project/StockInference-Spark/data/setup.gfsh
+# GemFire/Geode setup
+
+start locator --name=locator1 --J=-Dgemfire.http-service-port=7575
+start server --name=server1 --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8888 --hostname-for-cl
+ients=192.168.56.10 --locators=geode-server[10334]
+
+connect --locator=geode-server[10334]
+
+create region --name=/Stocks --type=PARTITION
+create region --name=/TechIndicators --type=PARTITION
+create region --name=/Predictions --type=PARTITION
+
+import data --region=/Stocks --file=../Stocks.gfd --member=server1
+import data --region=/TechIndicators --file=../TechIndicators.gfd --member=server1
+
+describe region --name=/Stocks
+describe region --name=/TechIndicators
+describe region --name=/Predictions
 ```
 
 you'll also need to export the GEODE_HOME variable, pointing to *your* Apache Geode installation 
@@ -430,7 +479,11 @@ Region | size        | 500
        | data-policy | PARTITION
 
 ```
-
+If the Value shows as 0, there was an issue creating the stream.  To fix:  Issue a destory and create to recreate the streams.
+```
+~/project/StockInference-Spark/streaming $ ./stream-destroy.sh
+~/project/StockInference-Spark/streaming $ ./stream-create.sh
+```
 Now check some of the data:
 
 ```
