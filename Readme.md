@@ -12,7 +12,7 @@ Stock Inference engine using Spring XD, Apache Geode / GemFire and Spark ML Lib.
 * [Apache Geode (Incubating)](http://geode.incubator.apache.org/) or [Pivotal GemFire](http://pivotal.io/big-data/pivotal-gemfire)
 * [Spring XD 1.2+](http://projects.spring.io/spring-xd/)
 * [Apache Spark 1.3.1](http://spark.apache.org/downloads.html)
-* [Apache Zeppelin (Incubating)](http://zeppelin.incubator.apache.org/)
+* [Apache Zeppelin](http://zeppelin.incubator.apache.org/)
 * 8GB+ RAM (recommended)
 * Linux or OSX (Windows should be OK but instructions assume *nix shell)
 
